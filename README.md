@@ -1,5 +1,7 @@
 # LootBot 0.3: shared guild relay
 
+<img src="assets/peon.gif" alt="Classic Warcraft III Orc Peon portrait" align="right" width="140">
+
 ## TL;DR — zug zug
 
 All guild orcs install the WoW addon. **Only relay orc** also runs LootBot.exe. Other orcs need no program and see no flashing bar.
