@@ -12,6 +12,13 @@ Chief orcs taking nap? Addon keep news in pocket. When loot peon and a Chief orc
 
 Young peon can shout for blue and better loot. Want only purple and better? Type `/lootbot filter epic`. At level 40, peon only shout for purple and better forever. Grey, white, green? Pah. Trash. No whisper. No squares. No Discord shout.
 
+## Download — work, work
+
+- **Regular peon:** [LootBot addon ZIP](https://github.com/supertramps/lootbot/releases/latest/download/LootBot-Addon.zip). Put `LootBot` in WoW's `Interface/AddOns` folder.
+- **Chief orc:** [LootBot Windows relay ZIP](https://github.com/supertramps/lootbot/releases/latest/download/LootBot-Relay-Windows.zip). Unzip it, install the included addon, then run `LootBot.exe`.
+
+[See the latest release and guide](https://github.com/supertramps/lootbot/releases/latest).
+
 ## Friends
 
 Install the LootBot addon from the addon ZIP into your Classic client's Interface/AddOns folder. Restart WoW after installing. Everyone must update to 0.3: older versions do not use the same relay announcement protocol.
