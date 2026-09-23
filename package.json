@@ -1,0 +1,17 @@
+{
+  "name": "lootbot",
+  "version": "0.3.0",
+  "private": true,
+  "description": "WoW Classic loot to Discord, using a visible optical bridge",
+  "scripts": {
+    "start": "node companion/main.js",
+    "live": "node companion/main.js --send",
+    "test": "node tests/run.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "fengari": "0.1.4"
+  }
+}

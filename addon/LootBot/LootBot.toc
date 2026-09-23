@@ -1,0 +1,9 @@
+## Interface: 11500
+## Title: LootBot
+## Notes: Broadcasts your own loot through a visible optical marker to the LootBot desktop helper.
+## Author: LootBot
+## Version: 0.3.0
+## SavedVariables: LootBotDB
+Protocol.lua
+Relay.lua
+LootBot.lua

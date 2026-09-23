@@ -1,0 +1,13 @@
+{
+  "minimumQuality": 4,
+  "watchItemIds": [],
+  "pollMs": 100,
+  "markerX": 16,
+  "markerY": 16,
+  "cellSize": 1,
+  "processId": 0,
+  "levelMilestones": [10, 20, 30, 40, 50, 60],
+  "digestDelaySeconds": 120,
+  "digestCooldownSeconds": 900,
+  "liveAgeSeconds": 90
+}

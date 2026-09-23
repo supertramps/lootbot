@@ -1,0 +1,1 @@
+{"name":"lootbot-cloud","private":true,"version":"0.3.0","type":"module","scripts":{"test":"node ../tests/cloud.mjs","deploy":"wrangler deploy"},"devDependencies":{"wrangler":"^4.136.3"}}

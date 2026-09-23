@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "lootbot",
+  "account_id": "c85f07439f3e32e8e1c100fe1d88a384",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-22",
+  "workers_dev": true,
+  "preview_urls": false,
+  "d1_databases": [{"binding":"DB","database_name":"lootbot","database_id":"1dbd8031-61af-462b-9c9e-20edfb6b51f7","migrations_dir":"migrations"}],
+  "triggers": {"crons":["* * * * *"]},
+  "observability": {"enabled":true}
+}
