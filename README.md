@@ -4,11 +4,11 @@
 
 ## TL;DR — zug zug
 
-Every peon put LootBot addon in WoW. Some peons volunteer to be **relay peons**. Relay peons also run LootBot.exe. Other peons just play. No blinky squares on their screens.
+Every peon put LootBot addon in WoW. Some orcs become **Chief orcs**. Chief orcs also run LootBot.exe. Other peons just play. No blinky squares on their screens.
 
-Peon find shiny loot or ding big level. Addon go "Psst!" to relay peon's addon. Tiny magic squares blink on relay peon's screen. LootBot.exe see squares. Send news to big cloud in sky. Cloud remember news, then shout in Discord **one time**. Zug zug!
+Peon find shiny loot or ding big level. Addon go "Psst!" to Chief orc's addon. Tiny magic squares blink on Chief orc's screen. LootBot.exe see squares. Send news to big cloud in sky. Cloud remember news, then shout in Discord **one time**. Zug zug!
 
-Relay peon taking nap? Addon keep news in pocket. When loot peon and relay peon both play again, news go to cloud.
+Chief orcs taking nap? Addon keep news in pocket. When loot peon and a Chief orc both play again, news go to cloud.
 
 Young peon can shout for blue and better loot. Want only purple and better? Type `/lootbot filter epic`. At level 40, peon only shout for purple and better forever. Grey, white, green? Pah. Trash. No whisper. No squares. No Discord shout.
 
