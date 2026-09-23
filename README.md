@@ -4,13 +4,13 @@
 
 ## TL;DR — zug zug
 
-All guild orcs install the WoW addon. **Only relay orc** also runs LootBot.exe. Other orcs need no program and see no flashing bar.
+Every peon put LootBot addon in WoW. Some peons volunteer to be **relay peons**. Relay peons also run LootBot.exe. Other peons just play. No blinky squares on their screens.
 
-Orc finds shiny loot or dings a big level. Addon tells relay orc's addon. Relay orc's tiny pixel bar flashes; LootBot.exe reads it and sends the news to the cloud. Cloud remembers the news and shouts it **once** in Discord. Zug zug!
+Peon find shiny loot or ding big level. Addon go "Psst!" to relay peon's addon. Tiny magic squares blink on relay peon's screen. LootBot.exe see squares. Send news to big cloud in sky. Cloud remember news, then shout in Discord **one time**. Zug zug!
 
-No relay orc online? Addon holds the news until friend and relay play at the same time.
+Relay peon taking nap? Addon keep news in pocket. When loot peon and relay peon both play again, news go to cloud.
 
-Below level 40, blue and better loot can get a shout. Each orc may choose `/lootbot filter epic` to shout only for purple and better. At level 40, purple and better becomes the rule forever for that character. Grey, white, and green loot? Trash. Addon never sends it.
+Young peon can shout for blue and better loot. Want only purple and better? Type `/lootbot filter epic`. At level 40, peon only shout for purple and better forever. Grey, white, green? Pah. Trash. No whisper. No squares. No Discord shout.
 
 ## Friends
 
