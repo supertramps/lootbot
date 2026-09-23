@@ -9,10 +9,11 @@ using System.Threading;
 using System.Windows.Forms;
 
 public class LootBotWindow : Form {
-    readonly string root = AppDomain.CurrentDomain.BaseDirectory;
+    readonly string root = Path.GetDirectoryName(typeof(LootBotWindow).Assembly.Location);
     readonly NotifyIcon tray = new NotifyIcon();
     readonly TextBox log = new TextBox();
     readonly Label status = new Label();
+    readonly Label state = new Label();
     readonly CheckBox all = new CheckBox();
     readonly ComboBox mode = new ComboBox();
     readonly Button start = new Button();
@@ -20,23 +21,54 @@ public class LootBotWindow : Form {
     bool exiting;
 
     public LootBotWindow() {
-        Text="LootBot — Guild relay"; ClientSize=new Size(660,440); MinimumSize=new Size(676,478);
-        StartPosition=FormStartPosition.CenterScreen; Font=new Font("Segoe UI",10);
-        var info=new Label { Text="Friends need only the addon. On your relay character: /lootbot relay on\nStart this app before logging in, or use /lootbot sync to replay saved events.",
-            Location=new Point(16,16),Size=new Size(625,50) };
-        Controls.Add(info);
-        mode.DropDownStyle=ComboBoxStyle.DropDownList; mode.Items.AddRange(new object[]{"Preview — no Discord posts","Live — post to Discord"});
-        mode.SelectedIndex=0; mode.Location=new Point(16,78); mode.Width=295; Controls.Add(mode);
-        all.Text="All loot for testing"; all.Checked=true; all.Location=new Point(330,78); all.Width=200; Controls.Add(all);
-        start.Text="Start relay"; start.Location=new Point(16,118); start.Width=125; start.Height=34; start.Click+=(s,e)=>StartHelper(); Controls.Add(start);
-        var stop=new Button { Text="Stop",Location=new Point(151,118),Size=new Size(85,34) }; stop.Click+=(s,e)=>StopHelper(); Controls.Add(stop);
-        var configure=new Button { Text=File.Exists(Path.Combine(root,"cloud-config.json"))?"Relay registration":"Configure Discord",Location=new Point(246,118),Size=new Size(160,34) }; configure.Click+=(s,e)=>{if(File.Exists(Path.Combine(root,"cloud-config.json")))RegisterRelay();else Configure();}; Controls.Add(configure);
-        var hide=new Button { Text="Hide to tray",Location=new Point(416,118),Size=new Size(125,34) }; hide.Click+=(s,e)=>Hide(); Controls.Add(hide);
-        var options=new Button {Text="Tools",Location=new Point(550,118),Size=new Size(94,34)};options.Click+=(s,e)=>{if(!File.Exists(Path.Combine(root,"cloud-config.json"))){MessageBox.Show(this,"Connect this installation to the shared service first.");return;}using(var w=new ToolsWindow())w.ShowDialog(this);};Controls.Add(options);
-        if(File.Exists(Path.Combine(root,"cloud-config.json"))){all.Checked=false;all.Enabled=false;all.Text="Filters: use Tools";}
-        status.Text="Stopped. Choose Preview or Live, then Start relay."; status.Location=new Point(16,164); status.Size=new Size(625,40); Controls.Add(status);
-        log.Multiline=true; log.ReadOnly=true; log.ScrollBars=ScrollBars.Vertical; log.Location=new Point(16,210); log.Size=new Size(628,210);
-        log.Anchor=AnchorStyles.Top|AnchorStyles.Bottom|AnchorStyles.Left|AnchorStyles.Right; log.Font=new Font("Consolas",9); Controls.Add(log);
+        Text="LootBot — Guild relay";ClientSize=new Size(820,630);MinimumSize=new Size(836,668);
+        StartPosition=FormStartPosition.CenterScreen;FormBorderStyle=FormBorderStyle.FixedSingle;MaximizeBox=false;
+        UiTheme.Form(this);
+        UiTheme.Label(this,"LOOTBOT  /  GUILD RELAY",22,17,480,22,true,UiTheme.Green,9);
+        UiTheme.Label(this,"Keep the guild in the loop",22,42,570,40,true,UiTheme.Ink,22);
+        UiTheme.Label(this,"Friends only need the addon. This window is for relay volunteers.",23,87,710,23);
+        state.Text="STOPPED";state.Location=new Point(681,29);state.Size=new Size(113,30);
+        state.TextAlign=ContentAlignment.MiddleCenter;state.BackColor=UiTheme.Canvas;
+        state.ForeColor=UiTheme.Muted;state.Font=new Font("Segoe UI",9,FontStyle.Bold);
+        Controls.Add(state);
+
+        var session=UiTheme.Card(this,20,122,780,170);
+        UiTheme.Label(session,"SESSION",20,15,200,20,true,UiTheme.Green,9);
+        UiTheme.Label(session,"Choose how this relay runs",20,37,480,27,true,UiTheme.Ink,13);
+        UiTheme.Label(session,"MODE",20,77,100,20,true,UiTheme.Muted,8.5f);
+        UiTheme.Field(mode,20,99,282);mode.Items.AddRange(new object[]{"Preview — no Discord posts","Live — post to Discord"});
+        mode.SelectedIndex=0;session.Controls.Add(mode);
+        UiTheme.Button(start,"Start relay",320,96,142,38,true);start.Click+=(s,e)=>StartHelper();session.Controls.Add(start);
+        var stop=UiTheme.Button(session,"Stop",472,96,88,38,()=>StopHelper());
+        all.Text="All loot (local test)";all.Checked=true;all.Location=new Point(584,102);all.Size=new Size(176,27);
+        all.ForeColor=UiTheme.Muted;session.Controls.Add(all);
+        if(File.Exists(Path.Combine(root,"cloud-config.json"))){
+            all.Checked=false;all.Enabled=false;all.Visible=false;
+            UiTheme.Label(session,"Shared service mode",584,103,176,24,false,UiTheme.Muted,9);
+        }
+        UiTheme.Label(session,"In WoW: /lootbot relay on   ·   Started after login? Use /lootbot sync.",20,140,730,21,false,UiTheme.Muted,9);
+
+        var setup=UiTheme.Card(this,20,306,780,103);
+        UiTheme.Label(setup,"SETUP & TOOLS",20,14,230,20,true,UiTheme.Green,9);
+        UiTheme.Label(setup,"Registration, test messages and shared settings",20,36,710,22);
+        UiTheme.Button(setup,File.Exists(Path.Combine(root,"cloud-config.json"))?"Relay registration":"Configure Discord",20,64,176,31,
+            ()=>{if(File.Exists(Path.Combine(root,"cloud-config.json")))RegisterRelay();else Configure();});
+        UiTheme.Button(setup,"Open tools",208,64,132,31,()=>{
+            if(!File.Exists(Path.Combine(root,"cloud-config.json"))){MessageBox.Show(this,"Connect this installation to the shared service first.");return;}
+            using(var w=new ToolsWindow())w.ShowDialog(this);
+        });
+        UiTheme.Button(setup,"Hide to tray",352,64,128,31,()=>Hide());
+
+        var activity=UiTheme.Card(this,20,423,780,163);
+        UiTheme.Label(activity,"ACTIVITY",20,13,170,22,true,UiTheme.Green,9);
+        UiTheme.Label(activity,"What the relay is doing",20,34,530,22);
+        log.Multiline=true;log.ReadOnly=true;log.ScrollBars=ScrollBars.Vertical;
+        log.Location=new Point(20,65);log.Size=new Size(740,80);log.BackColor=UiTheme.Canvas;
+        log.ForeColor=UiTheme.Ink;log.BorderStyle=BorderStyle.None;log.Font=new Font("Consolas",9);
+        activity.Controls.Add(log);
+        status.Text="Stopped. Choose Preview or Live, then start the relay.";
+        status.Location=new Point(23,596);status.Size=new Size(760,23);status.ForeColor=UiTheme.Muted;
+        status.Font=new Font("Segoe UI",9);Controls.Add(status);
         var menu=new ContextMenuStrip(); menu.Items.Add("Open LootBot",null,(s,e)=>{Show();Activate();});
         menu.Items.Add("Stop relay",null,(s,e)=>StopHelper()); menu.Items.Add("Exit",null,(s,e)=>{exiting=true;Close();});
         tray.Icon=SystemIcons.Information; tray.Text="LootBot — stopped"; tray.Visible=true; tray.ContextMenuStrip=menu;
@@ -70,12 +102,13 @@ public class LootBotWindow : Form {
         helper.OutputDataReceived+=(s,e)=>Append(e.Data);helper.ErrorDataReceived+=(s,e)=>Append(e.Data);
         helper.Exited+=(s,e)=>{
             Append("Relay helper stopped. You can review the log above.");
-            try {BeginInvoke(new Action(()=>{start.Enabled=true;mode.Enabled=true;all.Enabled=!File.Exists(Path.Combine(root,"cloud-config.json"));tray.Text="LootBot — stopped";}));}
+            try {BeginInvoke(new Action(()=>{start.Enabled=true;mode.Enabled=true;all.Enabled=!File.Exists(Path.Combine(root,"cloud-config.json"));state.Text="STOPPED";state.ForeColor=UiTheme.Muted;tray.Text="LootBot — stopped";}));}
             catch(InvalidOperationException){}
         };
         try {
             helper.Start();helper.BeginOutputReadLine();helper.BeginErrorReadLine();
             tray.Text=live?"LootBot — live relay":"LootBot — preview";start.Enabled=false;mode.Enabled=false;all.Enabled=false;
+            state.Text=live?"LIVE":"PREVIEW";state.ForeColor=UiTheme.Green;
         } catch(Exception) {Append("Could not start Node.js. Install Node.js LTS and reopen LootBot."); helper=null;}
     }
     void StopHelper() {
@@ -85,7 +118,7 @@ public class LootBotWindow : Form {
             } catch(InvalidOperationException) {} catch(IOException) {}
             helper.Dispose();helper=null;
         }
-        start.Enabled=true;mode.Enabled=true;all.Enabled=!File.Exists(Path.Combine(root,"cloud-config.json"));tray.Text="LootBot — stopped";status.Text="Stopped.";
+        start.Enabled=true;mode.Enabled=true;all.Enabled=!File.Exists(Path.Combine(root,"cloud-config.json"));tray.Text="LootBot — stopped";status.Text="Stopped.";state.Text="STOPPED";state.ForeColor=UiTheme.Muted;
     }
     public static void SaveWebhook(string path,string url) {
         if(!Regex.IsMatch(url,@"\Ahttps://discord\.com/api(?:/v\d+)?/webhooks/\d+/[A-Za-z0-9_-]+\z")) throw new ArgumentException("Invalid webhook URL");
@@ -98,21 +131,29 @@ public class LootBotWindow : Form {
             var psi=new ProcessStartInfo(Path.Combine(root,"runtime","node.exe"),"\""+Path.Combine(root,"companion","cloud.js")+"\" --enroll");
             psi.WorkingDirectory=root;psi.UseShellExecute=false;psi.CreateNoWindow=true;psi.RedirectStandardOutput=true;psi.RedirectStandardError=true;
             using(var p=Process.Start(psi)){p.StandardOutput.ReadToEnd();p.StandardError.ReadToEnd();p.WaitForExit();if(p.ExitCode!=0)throw new Exception();}
-            using(var dialog=new Form {Text="Register this relay",ClientSize=new Size(600,360),StartPosition=FormStartPosition.CenterParent}) {
-                var info=new Label {Text="Send this public registration to your guild's LootBot administrator.\nThey must approve this relay before it can submit events. This is not a password.",Location=new Point(12,12),Size=new Size(575,48)};
-                var field=new TextBox {Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Vertical,Location=new Point(12,70),Size=new Size(575,225),Text=File.ReadAllText(Path.Combine(root,"relay-registration.json"))};
-                var copy=new Button {Text="Copy registration",Location=new Point(12,310),Size=new Size(170,32)};copy.Click+=(s,e)=>Clipboard.SetText(field.Text);
-                dialog.Controls.Add(info);dialog.Controls.Add(field);dialog.Controls.Add(copy);dialog.ShowDialog(this);
+            using(var dialog=new Form {Text="LootBot — Relay registration",ClientSize=new Size(620,390),StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false}) {
+                UiTheme.Form(dialog);
+                UiTheme.Label(dialog,"RELAY REGISTRATION",20,18,380,20,true,UiTheme.Green,9);
+                UiTheme.Label(dialog,"Share this code with the guild administrator",20,44,580,31,true,UiTheme.Ink,15);
+                UiTheme.Label(dialog,"They must approve this relay before it can send events. This code is public.",20,82,580,27);
+                var field=new TextBox {Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Vertical,Text=File.ReadAllText(Path.Combine(root,"relay-registration.json"))};
+                UiTheme.Field(field,20,124,580,195);field.BackColor=UiTheme.Surface;field.Font=new Font("Consolas",9);dialog.Controls.Add(field);
+                UiTheme.Button(dialog,"Copy registration",20,335,190,36,()=>Clipboard.SetText(field.Text),true);
+                dialog.ShowDialog(this);
             }
         }catch{MessageBox.Show(this,"Could not create the relay identity. Check the runtime and folder permissions.");}
     }
     void Configure() {
-        using(var dialog=new Form { Text="Discord webhook",ClientSize=new Size(550,160),StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false }) {
-            var label=new Label {Text="Paste your channel's webhook URL. It is encrypted for this Windows user.\nSaving does not send a Discord message.",Location=new Point(14,12),Size=new Size(525,40)};
-            var field=new TextBox {UseSystemPasswordChar=true,Location=new Point(14,62),Width=520};
-            var save=new Button {Text="Save",Location=new Point(434,106),Size=new Size(100,32)};
+        using(var dialog=new Form { Text="LootBot — Discord webhook",ClientSize=new Size(560,235),StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false }) {
+            UiTheme.Form(dialog);
+            UiTheme.Label(dialog,"DISCORD CONNECTION",20,17,340,20,true,UiTheme.Green,9);
+            UiTheme.Label(dialog,"Connect a Discord channel",20,43,520,34,true,UiTheme.Ink,16);
+            UiTheme.Label(dialog,"Paste the channel webhook URL. It stays encrypted on this Windows account.",20,83,520,28);
+            var field=new TextBox {UseSystemPasswordChar=true};UiTheme.Field(field,20,122,520);dialog.Controls.Add(field);
+            UiTheme.Label(dialog,"Saving does not send a message.",20,166,340,22);
+            var save=new Button();UiTheme.Button(save,"Save",440,169,100,36,true);
             save.Click+=(s,e)=>{try {SaveWebhook(Path.Combine(root,"webhook.dpapi"),field.Text.Trim());field.Clear();dialog.DialogResult=DialogResult.OK;dialog.Close();}catch(Exception){MessageBox.Show(dialog,"Could not save. Check the Discord webhook URL and folder permissions.");}};
-            dialog.Controls.Add(label);dialog.Controls.Add(field);dialog.Controls.Add(save);dialog.AcceptButton=save;dialog.ShowDialog(this);
+            dialog.Controls.Add(save);dialog.AcceptButton=save;dialog.ShowDialog(this);
         }
     }
     [STAThread] public static int Main(string[] args) {
