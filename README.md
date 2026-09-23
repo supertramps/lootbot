@@ -1,5 +1,13 @@
 # LootBot 0.3: shared guild relay
 
+## TL;DR — zug zug
+
+Friend installs addon. Friend loots good gear or dings a milestone. Addon tells a guild relay; no extra program or flashing bar for friend.
+
+Relay volunteer runs addon **and** LootBot.exe. Their tiny bar flashes for qualifying events. Program reads bar and sends news to the shared service. Service remembers what it has seen and posts to Discord once.
+
+No relay online? Addon keeps the news until friend and relay are online together. Each character can use `/lootbot filter rare` or `/lootbot filter epic`; at level 40, only epics and above go through. Grey, white, and green loot never goes through. Zug zug.
+
 ## Friends
 
 Install the LootBot addon from the addon ZIP into your Classic client's Interface/AddOns folder. Restart WoW after installing. Everyone must update to 0.3: older versions do not use the same relay announcement protocol.
