@@ -2,11 +2,13 @@
 
 ## TL;DR — zug zug
 
-Friend installs addon. Friend loots good gear or dings a milestone. Addon tells a guild relay; no extra program or flashing bar for friend.
+All guild orcs install the WoW addon. **Only relay orc** also runs LootBot.exe. Other orcs need no program and see no flashing bar.
 
-Relay volunteer runs addon **and** LootBot.exe. Their tiny bar flashes for qualifying events. Program reads bar and sends news to the shared service. Service remembers what it has seen and posts to Discord once.
+Orc finds shiny loot or dings a big level. Addon tells relay orc's addon. Relay orc's tiny pixel bar flashes; LootBot.exe reads it and sends the news to the cloud. Cloud remembers the news and shouts it **once** in Discord. Zug zug!
 
-No relay online? Addon keeps the news until friend and relay are online together. Each character can use `/lootbot filter rare` or `/lootbot filter epic`; at level 40, only epics and above go through. Grey, white, and green loot never goes through. Zug zug.
+No relay orc online? Addon holds the news until friend and relay play at the same time.
+
+Below level 40, blue and better loot can get a shout. Each orc may choose `/lootbot filter epic` to shout only for purple and better. At level 40, purple and better becomes the rule forever for that character. Grey, white, and green loot? Trash. Addon never sends it.
 
 ## Friends
 
