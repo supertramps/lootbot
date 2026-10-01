@@ -161,7 +161,11 @@ SlashCmdList.LOOTBOT=function(command)
         relay:record({kind='loot',itemId=755,quality=4,quantity=1,itemName='Catch-up test item',test=true,timestamp=GetServerTime()-86400})
         say('Labeled one-day-old test recorded; it belongs in the catch-up digest.')
     elseif command=='newspaper' or command=='news' then
-        LootBotNewsletterPreview.Show()
+        if LootBotNewsletterPreview and type(LootBotNewsletterPreview.Show)=='function' then
+            LootBotNewsletterPreview.Show()
+        else
+            say('Newspaper preview could not load. Loot tracking is unaffected.')
+        end
     elseif command=='off' then db.enabled=false; draw(nil); say('Recording and syncing paused.')
     elseif command=='on' then db.enabled=true; say('Resumed.')
     elseif command=='filter' then

@@ -22,6 +22,9 @@ local slots = {
 }
 
 local frame = CreateFrame('Frame','LootBotNewsletterFrame',UIParent)
+-- Hide immediately. If any later setup fails, never leave a partial window
+-- covering the game UI.
+frame:Hide()
 frame:SetSize(680,700)
 frame:SetPoint('CENTER')
 frame:SetFrameStrata('DIALOG')
@@ -59,7 +62,7 @@ paper:SetTexCoord(0.125,0.875,0,1)
 
 local fields={}
 for _,slot in ipairs(slots) do
-    local label=content:CreateFontString(nil,'OVERLAY')
+    local label=content:CreateFontString(nil,'OVERLAY','GameFontNormal')
     label:SetJustifyH(slot.center and 'CENTER' or 'LEFT')
     label:SetJustifyV('TOP')
     local color=slot.key=='headline' and accent or ink
