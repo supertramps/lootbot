@@ -7,3 +7,4 @@
 Protocol.lua
 Relay.lua
 LootBot.lua
+NewsletterPreview.lua

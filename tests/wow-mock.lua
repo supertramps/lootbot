@@ -2,6 +2,9 @@ MockTime = 1
 MockHeight = 1440
 MockScale = 0.8
 UIParent = { GetEffectiveScale = function() return MockScale end }
+Minimap = {}
+STANDARD_TEXT_FONT = 'Fonts/FRIZQT__.TTF'
+function GetCursorPosition() return 500,500 end
 function GetPhysicalScreenSize() return MockHeight * 16 / 9, MockHeight end
 SlashCmdList = {}
 LOOT_ITEM_SELF = 'You receive loot: %s.'
@@ -26,20 +29,36 @@ function print() end
 function CreateFrame(_, name)
     local frame = { scripts={}, textures={}, shown=true }
     local nop = function() end
-    for _, method in ipairs({'SetFrameStrata','SetFrameLevel','EnableMouse','SetAlpha','SetScale','SetSize','ClearAllPoints','SetPoint','RegisterEvent'}) do frame[method]=nop end
+    for _, method in ipairs({'SetFrameStrata','SetFrameLevel','EnableMouse','SetAlpha','SetScale','SetSize','ClearAllPoints','SetPoint','RegisterEvent',
+        'SetClampedToScreen','SetMovable','RegisterForDrag','StartMoving','StopMovingOrSizing','EnableMouseWheel',
+        'SetNormalTexture','SetHighlightTexture','SetAllPoints'}) do frame[method]=nop end
     function frame:SetScale(scale) self.scale=scale end
     function frame:SetSize(width,height) self.width=width; self.height=height end
     function frame:SetPoint(_, _, _, x, y) self.x=x; self.y=y end
     function frame:SetScript(event, fn) self.scripts[event]=fn end
     function frame:Show() self.shown=true end
     function frame:Hide() self.shown=false end
+    function frame:IsShown() return self.shown end
+    function frame:SetText(value) self.text=value end
+    function frame:SetScrollChild(child) self.scrollChild=child end
+    function frame:SetHorizontalScroll(value) self.horizontalScroll=value end
+    function frame:GetHorizontalScroll() return self.horizontalScroll or 0 end
+    function frame:SetVerticalScroll(value) self.verticalScroll=value end
+    function frame:GetVerticalScroll() return self.verticalScroll or 0 end
     function frame:CreateTexture()
-        local texture = { SetSize=nop, SetPoint=nop }
+        local texture = { SetSize=nop, SetPoint=nop, SetAllPoints=nop, SetTexture=nop, SetTexCoord=nop, Hide=nop }
         function texture:SetColorTexture(r) self.color=r end
         self.textures[#self.textures+1]=texture
         return texture
     end
-    _G[name]=frame
+    function frame:CreateFontString()
+        local label={ SetPoint=nop, ClearAllPoints=nop, SetSize=nop, SetJustifyH=nop, SetJustifyV=nop,
+            SetTextColor=nop, SetFont=nop, Hide=nop }
+        function label:SetText(value) self.text=value end
+        self.labels=self.labels or {}; self.labels[#self.labels+1]=label
+        return label
+    end
+    if name then _G[name]=frame end
     return frame
 end
 function ReadMarker()

@@ -136,6 +136,27 @@ test('addon lifecycle, self-loot event and optical rendering work together', () 
   v.run(`SlashCmdList.LOOTBOT('off'); assert(not LootBotMarker.shown); SlashCmdList.LOOTBOT('on'); for i=1,10 do MockTime=100+i*20; LootBotDriver.scripts.OnUpdate(LootBotDriver, 1) end; assert(not LootBotMarker.shown)`);
   v.close();
 });
+test('newspaper preview opens from minimap and slash command without creating loot events', () => {
+  const v = vm();
+  v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/LootBot.lua'), 'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/NewsletterPreview.lua'), 'utf8'));
+  v.run(`
+    LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LOGIN')
+    local db=LootBotDB.characters[UnitGUID('player')]
+    assert(not LootBotNewsletterFrame:IsShown())
+    assert(LootBotNewsletterMinimapButton:IsShown())
+    LootBotNewsletterMinimapButton.scripts.OnClick()
+    assert(LootBotNewsletterFrame:IsShown())
+    assert(#db.own==0 and #LootBotMarker.textures==0)
+    LootBotNewsletterMinimapButton.scripts.OnClick()
+    assert(not LootBotNewsletterFrame:IsShown())
+    SlashCmdList.LOOTBOT('newspaper')
+    assert(LootBotNewsletterFrame:IsShown())
+    assert(#db.own==0 and #LootBotMarker.textures==0)
+  `);
+  v.close();
+});
 test('personal filters discard junk before relay traffic and lock to Epic at level 40', () => {
   const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/LootBot.lua'),'utf8'));

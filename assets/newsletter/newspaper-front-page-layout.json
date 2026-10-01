@@ -1,0 +1,18 @@
+{
+  "template": "newspaper-front-page-template.png",
+  "canvas": { "width": 1086, "height": 1448 },
+  "coordinateSystem": "pixels from top-left; scale every rectangle with the image",
+  "textSlots": {
+    "masthead": { "x": 260, "y": 100, "width": 566, "height": 135 },
+    "editionAndDate": { "x": 64, "y": 283, "width": 958, "height": 29 },
+    "leadHeadline": { "x": 66, "y": 351, "width": 954, "height": 104 },
+    "leadStory": { "x": 58, "y": 515, "width": 548, "height": 369 },
+    "leftColumnTitle": { "x": 52, "y": 957, "width": 282, "height": 42 },
+    "leftColumnBody": { "x": 52, "y": 1007, "width": 282, "height": 238 },
+    "centerColumnTitle": { "x": 388, "y": 957, "width": 314, "height": 42 },
+    "centerColumnBody": { "x": 388, "y": 1007, "width": 314, "height": 238 },
+    "rightColumnTitle": { "x": 746, "y": 957, "width": 282, "height": 42 },
+    "rightColumnBody": { "x": 746, "y": 1007, "width": 282, "height": 238 }
+  },
+  "notes": "The right-hand lead illustration and bottom engraved scene are fixed artwork. Keep generated headlines and tables inside the blank text slots."
+}

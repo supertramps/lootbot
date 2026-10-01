@@ -160,6 +160,8 @@ SlashCmdList.LOOTBOT=function(command)
     elseif command=='test backlog' then
         relay:record({kind='loot',itemId=755,quality=4,quantity=1,itemName='Catch-up test item',test=true,timestamp=GetServerTime()-86400})
         say('Labeled one-day-old test recorded; it belongs in the catch-up digest.')
+    elseif command=='newspaper' or command=='news' then
+        LootBotNewsletterPreview.Show()
     elseif command=='off' then db.enabled=false; draw(nil); say('Recording and syncing paused.')
     elseif command=='on' then db.enabled=true; say('Resumed.')
     elseif command=='filter' then
@@ -172,7 +174,7 @@ SlashCmdList.LOOTBOT=function(command)
     elseif command=='version' then
         local version,build,_,interface=GetBuildInfo(); say('LootBot 0.3; client '..version..', build '..build..', interface '..interface)
     else
-        say('relay on/off | sync | test | test level | test backlog | filter [rare|epic] | on/off.')
+        say('relay on/off | sync | test | test level | test backlog | newspaper | filter [rare|epic] | on/off.')
         say('Mode: '..(db.relay and 'relay' or 'member')..'; saved own events: '..#db.own..'; synced events: '..#db.inbox)
     end
 end
