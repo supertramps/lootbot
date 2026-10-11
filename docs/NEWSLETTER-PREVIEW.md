@@ -4,6 +4,11 @@ This branch adds a visual-only newspaper test to the Classic LootBot addon. It
 uses made-up names and numbers. It does not read character statistics, send
 newsletter data, post to Discord, or change loot tracking.
 
+The manifest targets Classic Era (11509) and the Forever beta (16001). For
+Forever, install into `_classic_beta_/Interface/AddOns/LootBot` and restart the
+client after changing the manifest. The newspaper still uses dummy data;
+Forever statistics collection and live relay compatibility need in-game checks.
+
 After installing the addon and reloading WoW, click the note icon by the
 minimap or type `/lootbot newspaper`. Use the `+` and `-` buttons to zoom, the
 mouse wheel to scroll, and drag the page to pan. The red `1` badge is a sample

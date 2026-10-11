@@ -1,4 +1,4 @@
-## Interface: 11500
+## Interface: 11509, 16001
 ## Title: LootBot
 ## Notes: Broadcasts your own loot through a visible optical marker to the LootBot desktop helper.
 ## Author: LootBot

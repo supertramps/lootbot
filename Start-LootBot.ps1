@@ -37,7 +37,7 @@ switch ($Mode) {
         Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'addon\LootBot') -File | Copy-Item -Destination $target
         if ($InterfaceVersion -gt 0) {
             $toc = Join-Path $target 'LootBot.toc'
-            $content = (Get-Content -LiteralPath $toc -Raw) -replace '## Interface: \d+', "## Interface: $InterfaceVersion"
+            $content = (Get-Content -LiteralPath $toc -Raw) -replace '(?m)^## Interface:[^\r\n]*', "## Interface: $InterfaceVersion"
             [IO.File]::WriteAllText($toc, $content, (New-Object Text.UTF8Encoding($false)))
         }
         Write-Host "Installed in $target"
