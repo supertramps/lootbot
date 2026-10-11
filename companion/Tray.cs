@@ -101,7 +101,9 @@ public class LootBotWindow : Form {
         if(live && !File.Exists(Path.Combine(root,"cloud-config.json")) && !File.Exists(Path.Combine(root,"webhook.dpapi"))) {Configure(); if(!File.Exists(Path.Combine(root,"webhook.dpapi")))return;}
         string node=Path.Combine(root,"runtime","node.exe");
         if(!File.Exists(node)) node="node.exe";
-        var psi=new ProcessStartInfo(node, "\""+Path.Combine(root,"companion","main.js")+"\""+(live?" --send":"")+(all.Checked?" --all":""));
+        // Test drops carry their own flag, so helper filters stay stable even
+        // when the addon switch is changed while this process is running.
+        var psi=new ProcessStartInfo(node, "\""+Path.Combine(root,"companion","main.js")+"\""+(live?" --send":""));
         psi.WorkingDirectory=root; psi.UseShellExecute=false; psi.CreateNoWindow=true;
         psi.RedirectStandardOutput=true;psi.RedirectStandardError=true;psi.RedirectStandardInput=true;
         psi.StandardOutputEncoding=Encoding.UTF8;psi.StandardErrorEncoding=Encoding.UTF8;
