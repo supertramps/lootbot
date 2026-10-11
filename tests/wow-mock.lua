@@ -1,7 +1,8 @@
 MockTime = 1
 MockHeight = 1440
 MockScale = 0.8
-UIParent = { GetEffectiveScale = function() return MockScale end }
+UIParent = { GetEffectiveScale = function() return MockScale end, GetHeight=function() return 768 end, GetWidth=function() return 1365 end }
+UISpecialFrames = {}
 Minimap = {}
 STANDARD_TEXT_FONT = 'Fonts/FRIZQT__.TTF'
 function GetCursorPosition() return 500,500 end

@@ -1,25 +1,33 @@
 # Guild Gazette Classic preview
 
-This branch adds a visual-only newspaper test to the Classic LootBot addon. It
-uses made-up names and numbers. It does not read character statistics, send
-newsletter data, post to Discord, or change loot tracking.
+This branch adds a newspaper to the Classic and Forever LootBot addon. It
+uses this character's statistics when the client exposes them. On clients
+without readable statistics, it shows a labelled sample issue. Newsletter
+syncing and weekly guild results are still to be implemented.
 
 The manifest targets Classic Era (11509) and the Forever beta (16001). For
 Forever, install into `_classic_beta_/Interface/AddOns/LootBot` and restart the
-client after changing the manifest. The newspaper still uses dummy data;
-Forever statistics collection and live relay compatibility need in-game checks.
+client after changing the manifest. The personal newspaper's live API values
+and Forever relay compatibility need in-game checks.
 
 After installing the addon and reloading WoW, click the note icon by the
-minimap or type `/lootbot newspaper`. Use the `+` and `-` buttons to zoom, the
-mouse wheel to scroll, and drag the page to pan. The red `1` badge is a sample
+minimap or type `/lootbot newspaper`. Only the paper and a small X are visible.
+Use the mouse wheel to zoom. Drag to move the paper at its fitted size, or pan
+the page when zoomed in. Escape also closes it. The red `1` badge is a sample
 new-issue notification and disappears when the issue is opened.
+
+Run `/lootbot stats` to read this character's exposed statistics. The command
+prints the number of entries and populated values. Run `/reload` afterward to
+save `LootBotDB.statisticsProbe` in the beta's SavedVariables file. Missing
+values such as `--` stay unknown. This command never sends statistics to other
+players, the desktop helper, or Discord.
 
 The editable source artwork is `assets/newsletter/newspaper-front-page-template.png`.
 The text placement map is `assets/newsletter/newspaper-front-page-layout.json`.
 `assets/newsletter/Build-ClassicTexture.ps1` produces the power-of-two PNG in
-`addon/LootBot/NewsletterPage.png` for WoW. The Classic preview text currently
-lives in `addon/LootBot/NewsletterPreview.lua`.
+`addon/LootBot/NewsletterPage.png` for WoW. The sample and personal edition
+layouts live in `addon/LootBot/NewsletterPreview.lua`.
 
-Later, actual newsletter data can replace the sample values without replacing
-the page art. Collection, guild syncing, issue generation, and Forever API
-compatibility are not part of this preview.
+The paper art stays installed while the text changes. Guild syncing and weekly
+issue generation are not part of this preview. See `FOREVER-STATISTICS.md` for
+the complete build-matched catalogue and API details.

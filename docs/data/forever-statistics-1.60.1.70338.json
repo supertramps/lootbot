@@ -1,0 +1,1822 @@
+{
+  "build": "1.60.1.70338",
+  "locale": "enUS",
+  "kind": "statistic definitions, not character values",
+  "count": 201,
+  "sources": [
+    "https://wago.tools/db2/Achievement/csv?build=1.60.1.70338",
+    "https://wago.tools/db2/Achievement_Category/csv?build=1.60.1.70338"
+  ],
+  "selection": "Achievement rows with the statistic flag (Flags & 1)",
+  "entries": [
+    {
+      "id": 49,
+      "name": "Alterac Valley victories",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 51,
+      "name": "Arathi Basin victories",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 52,
+      "name": "Warsong Gulch battles",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 53,
+      "name": "Alterac Valley battles",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 55,
+      "name": "Arathi Basin battles",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 56,
+      "name": "Deaths in Warsong Gulch",
+      "categoryId": 124,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 57,
+      "name": "Deaths in Alterac Valley",
+      "categoryId": 124,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 58,
+      "name": "Deaths from Drek'Thar",
+      "categoryId": 124,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 59,
+      "name": "Deaths in Arathi Basin",
+      "categoryId": 124,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 60,
+      "name": "Total deaths",
+      "categoryId": 122,
+      "categoryName": "Deaths",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 94,
+      "name": "Quests abandoned",
+      "categoryId": 133,
+      "categoryName": "Quests",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 95,
+      "name": "Average quests completed per day",
+      "categoryId": 133,
+      "categoryName": "Quests",
+      "parentCategoryId": 1,
+      "flags": 73,
+      "order": 2
+    },
+    {
+      "id": 98,
+      "name": "Quests completed",
+      "categoryId": 133,
+      "categoryName": "Quests",
+      "parentCategoryId": 1,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 105,
+      "name": "Warsong Gulch victories",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 12
+    },
+    {
+      "id": 107,
+      "name": "Creatures killed",
+      "categoryId": 135,
+      "categoryName": "Creatures",
+      "parentCategoryId": 128,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 108,
+      "name": "Critters killed",
+      "categoryId": 135,
+      "categoryName": "Creatures",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 112,
+      "name": "Deaths from drowning",
+      "categoryId": 126,
+      "categoryName": "World",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 113,
+      "name": "Deaths from fatigue",
+      "categoryId": 126,
+      "categoryName": "World",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 114,
+      "name": "Deaths from falling",
+      "categoryId": 126,
+      "categoryName": "World",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 115,
+      "name": "Deaths from fire and lava",
+      "categoryId": 126,
+      "categoryName": "World",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 5
+    },
+    {
+      "id": 178,
+      "name": "Enchanting formulae learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 181,
+      "name": "Items disenchanted",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 183,
+      "name": "Materials produced from disenchanting",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 189,
+      "name": "Largest heal cast",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 193,
+      "name": "Largest hit dealt",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 197,
+      "name": "Total damage done",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 198,
+      "name": "Total healing done",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 281,
+      "name": "First Aid skill",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 318,
+      "name": "Total deaths from opposite faction",
+      "categoryId": 21,
+      "categoryName": "Player vs. Player",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 319,
+      "name": "Duels won",
+      "categoryId": 154,
+      "categoryName": "World",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 320,
+      "name": "Duels lost",
+      "categoryId": 154,
+      "categoryName": "World",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 321,
+      "name": "Total raid and dungeon deaths",
+      "categoryId": 125,
+      "categoryName": "Dungeons and Raids",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 326,
+      "name": "Gold from quest rewards",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 328,
+      "name": "Total gold acquired",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 329,
+      "name": "Auctions posted",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 330,
+      "name": "Auction purchases",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 331,
+      "name": "Most expensive bid on auction",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 332,
+      "name": "Most expensive auction sold",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 333,
+      "name": "Gold looted",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 334,
+      "name": "Most gold ever owned",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 15
+    },
+    {
+      "id": 336,
+      "name": "Legendary items acquired",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 338,
+      "name": "Vanity pets owned",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 339,
+      "name": "Mounts owned",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 341,
+      "name": "Epic items looted",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 342,
+      "name": "Epic items acquired",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 344,
+      "name": "Bandages used",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 345,
+      "name": "Health potions consumed",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 4
+    },
+    {
+      "id": 346,
+      "name": "Beverages consumed",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 8
+    },
+    {
+      "id": 347,
+      "name": "Food eaten",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 9
+    },
+    {
+      "id": 349,
+      "name": "Flight paths taken",
+      "categoryId": 134,
+      "categoryName": "Travel",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 350,
+      "name": "Mage Portals taken",
+      "categoryId": 134,
+      "categoryName": "Travel",
+      "parentCategoryId": 1,
+      "flags": 9,
+      "order": 3
+    },
+    {
+      "id": 353,
+      "name": "Number of times hearthed",
+      "categoryId": 134,
+      "categoryName": "Travel",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 377,
+      "name": "Most factions at Exalted",
+      "categoryId": 147,
+      "categoryName": "Reputation",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 378,
+      "name": "Most factions at Revered or higher",
+      "categoryId": 147,
+      "categoryName": "Reputation",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 381,
+      "name": "World Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 9,
+      "order": 2
+    },
+    {
+      "id": 382,
+      "name": "Battleground Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 9,
+      "order": 4
+    },
+    {
+      "id": 393,
+      "name": "Alterac Valley towers defended",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 13
+    },
+    {
+      "id": 394,
+      "name": "Alterac Valley towers captured",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 14
+    },
+    {
+      "id": 395,
+      "name": "Warsong Gulch flags captured",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 15
+    },
+    {
+      "id": 527,
+      "name": "Largest hit received",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 528,
+      "name": "Total damage received",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 529,
+      "name": "Most factions at Honored or higher",
+      "categoryId": 147,
+      "categoryName": "Reputation",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 586,
+      "name": "Warsong Gulch flags returned",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 16
+    },
+    {
+      "id": 588,
+      "name": "Total Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 593,
+      "name": "Deaths from Vanndar Stormpike",
+      "categoryId": 124,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 594,
+      "name": "Deaths from Hogger",
+      "categoryId": 126,
+      "categoryName": "World",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 753,
+      "name": "Average gold earned per day",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 73,
+      "order": 2
+    },
+    {
+      "id": 796,
+      "name": "Resurrected by priests",
+      "categoryId": 127,
+      "categoryName": "Resurrection",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 798,
+      "name": "Rebirthed by druids",
+      "categoryId": 127,
+      "categoryName": "Resurrection",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 2
+    },
+    {
+      "id": 799,
+      "name": "Spirit returned to body by shamans",
+      "categoryId": 127,
+      "categoryName": "Resurrection",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 4
+    },
+    {
+      "id": 800,
+      "name": "Redeemed by paladins",
+      "categoryId": 127,
+      "categoryName": "Resurrection",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 5
+    },
+    {
+      "id": 801,
+      "name": "Resurrected by soulstones",
+      "categoryId": 127,
+      "categoryName": "Resurrection",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 6
+    },
+    {
+      "id": 811,
+      "name": "Flasks consumed",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 7
+    },
+    {
+      "id": 812,
+      "name": "Healthstones used",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 10
+    },
+    {
+      "id": 829,
+      "name": "Largest heal received",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 830,
+      "name": "Total healing received",
+      "categoryId": 141,
+      "categoryName": "Combat",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 839,
+      "name": "Battlegrounds played",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 840,
+      "name": "Battlegrounds won",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 9,
+      "order": 3
+    },
+    {
+      "id": 917,
+      "name": "Total deaths in 10-player raids",
+      "categoryId": 125,
+      "categoryName": "Dungeons and Raids",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 3
+    },
+    {
+      "id": 918,
+      "name": "Total deaths in 5-player dungeons",
+      "categoryId": 125,
+      "categoryName": "Dungeons and Raids",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 919,
+      "name": "Gold earned from auctions",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 921,
+      "name": "Gold from vendors",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 10
+    },
+    {
+      "id": 922,
+      "name": "Mana potions consumed",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 5
+    },
+    {
+      "id": 923,
+      "name": "Elixirs consumed",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 9,
+      "order": 6
+    },
+    {
+      "id": 926,
+      "name": "Most Horde factions at Exalted",
+      "categoryId": 147,
+      "categoryName": "Reputation",
+      "parentCategoryId": 130,
+      "flags": 33,
+      "order": 5
+    },
+    {
+      "id": 927,
+      "name": "Equipped epic items in item slots",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 33,
+      "order": 1
+    },
+    {
+      "id": 928,
+      "name": "Extra bank slots purchased",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 931,
+      "name": "Total factions encountered",
+      "categoryId": 147,
+      "categoryName": "Reputation",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 932,
+      "name": "Total 5-player dungeons entered",
+      "categoryId": 14807,
+      "categoryName": "Dungeons & Raids",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 933,
+      "name": "Total 10-player raids entered",
+      "categoryId": 14807,
+      "categoryName": "Dungeons & Raids",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 934,
+      "name": "Total 20-player raids entered",
+      "categoryId": 14807,
+      "categoryName": "Dungeons & Raids",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 1042,
+      "name": "Number of hugs",
+      "categoryId": 131,
+      "categoryName": "Social",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 1043,
+      "name": "Greed rolls made on loot",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 1044,
+      "name": "Need rolls made on loot",
+      "categoryId": 191,
+      "categoryName": "Gear",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 1045,
+      "name": "Total cheers",
+      "categoryId": 131,
+      "categoryName": "Social",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 1047,
+      "name": "Total facepalms",
+      "categoryId": 131,
+      "categoryName": "Social",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 1065,
+      "name": "Total waves",
+      "categoryId": 131,
+      "categoryName": "Social",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 1066,
+      "name": "Total times LOL'd",
+      "categoryId": 131,
+      "categoryName": "Social",
+      "parentCategoryId": 1,
+      "flags": 9,
+      "order": 4
+    },
+    {
+      "id": 1067,
+      "name": "Total times playing world's smallest violin",
+      "categoryId": 131,
+      "categoryName": "Social",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 1092,
+      "name": "Archmage Arugal kills (Shadowfang Keep)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 37
+    },
+    {
+      "id": 1093,
+      "name": "Scarlet Commander Mograine kills (Scarlet Monastery)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 2
+    },
+    {
+      "id": 1094,
+      "name": "Chief Ukorz Sandscalp kills (Zul'Farrak)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 45
+    },
+    {
+      "id": 1095,
+      "name": "Emperor Dagran Thaurissan kills (Blackrock Depths)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 48
+    },
+    {
+      "id": 1096,
+      "name": "General Drakkisath kills (Upper Blackrock Spire)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 51
+    },
+    {
+      "id": 1097,
+      "name": "Baron Rivendare kills (Stratholme)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 1572865,
+      "order": 6
+    },
+    {
+      "id": 1098,
+      "name": "Onyxia kills (Onyxia's Lair)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 54
+    },
+    {
+      "id": 1113,
+      "name": "Alterac Valley Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 1114,
+      "name": "Arathi Basin Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 1115,
+      "name": "Warsong Gulch Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 1125,
+      "name": "Bandage used most",
+      "categoryId": 145,
+      "categoryName": "Consumables",
+      "parentCategoryId": 130,
+      "flags": 17,
+      "order": 2
+    },
+    {
+      "id": 1146,
+      "name": "Gold spent on travel",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 11
+    },
+    {
+      "id": 1147,
+      "name": "Gold spent at barber shops",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 12
+    },
+    {
+      "id": 1148,
+      "name": "Gold spent on postage",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 13
+    },
+    {
+      "id": 1149,
+      "name": "Talent tree respecs",
+      "categoryId": 130,
+      "categoryName": "Character",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 1150,
+      "name": "Gold spent on talent tree respecs",
+      "categoryId": 140,
+      "categoryName": "Wealth",
+      "parentCategoryId": 130,
+      "flags": 1,
+      "order": 14
+    },
+    {
+      "id": 1197,
+      "name": "Total kills",
+      "categoryId": 128,
+      "categoryName": "Kills",
+      "parentCategoryId": 1,
+      "flags": 9,
+      "order": 1
+    },
+    {
+      "id": 1198,
+      "name": "Total kills that grant experience or honor",
+      "categoryId": 128,
+      "categoryName": "Kills",
+      "parentCategoryId": 1,
+      "flags": 9,
+      "order": 2
+    },
+    {
+      "id": 1199,
+      "name": "Professions learned",
+      "categoryId": 132,
+      "categoryName": "Skills",
+      "parentCategoryId": 1,
+      "flags": 33,
+      "order": 1
+    },
+    {
+      "id": 1200,
+      "name": "Secondary skills at maximum skill",
+      "categoryId": 132,
+      "categoryName": "Skills",
+      "parentCategoryId": 1,
+      "flags": 33,
+      "order": 3
+    },
+    {
+      "id": 1201,
+      "name": "Professions at maximum skill",
+      "categoryId": 132,
+      "categoryName": "Skills",
+      "parentCategoryId": 1,
+      "flags": 33,
+      "order": 2
+    },
+    {
+      "id": 1202,
+      "name": "Weapon skills at maximum skill",
+      "categoryId": 132,
+      "categoryName": "Skills",
+      "parentCategoryId": 1,
+      "flags": 33,
+      "order": 4
+    },
+    {
+      "id": 1229,
+      "name": "Revived by druids",
+      "categoryId": 127,
+      "categoryName": "Resurrection",
+      "parentCategoryId": 122,
+      "flags": 9,
+      "order": 3
+    },
+    {
+      "id": 1336,
+      "name": "Creature type killed the most",
+      "categoryId": 135,
+      "categoryName": "Creatures",
+      "parentCategoryId": 128,
+      "flags": 17,
+      "order": 3
+    },
+    {
+      "id": 1337,
+      "name": "Different creature types killed",
+      "categoryId": 135,
+      "categoryName": "Creatures",
+      "parentCategoryId": 128,
+      "flags": 33,
+      "order": 2
+    },
+    {
+      "id": 1339,
+      "name": "Mage portal taken most",
+      "categoryId": 134,
+      "categoryName": "Travel",
+      "parentCategoryId": 1,
+      "flags": 17,
+      "order": 4
+    },
+    {
+      "id": 1456,
+      "name": "Fish and other things caught",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 1458,
+      "name": "Continent with the most Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 17,
+      "order": 3
+    },
+    {
+      "id": 1466,
+      "name": "Most Alliance factions at Exalted",
+      "categoryId": 147,
+      "categoryName": "Reputation",
+      "parentCategoryId": 130,
+      "flags": 33,
+      "order": 4
+    },
+    {
+      "id": 1487,
+      "name": "Total Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 1488,
+      "name": "World Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 9,
+      "order": 2
+    },
+    {
+      "id": 1489,
+      "name": "Continent with the most Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 17,
+      "order": 3
+    },
+    {
+      "id": 1491,
+      "name": "Battleground Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 9,
+      "order": 4
+    },
+    {
+      "id": 1495,
+      "name": "Alterac Valley Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 1496,
+      "name": "Arathi Basin Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 1497,
+      "name": "Warsong Gulch Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 1501,
+      "name": "Total deaths from other players",
+      "categoryId": 21,
+      "categoryName": "Player vs. Player",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 1518,
+      "name": "Fish caught",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 8
+    },
+    {
+      "id": 1519,
+      "name": "Fishing skill",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 7
+    },
+    {
+      "id": 1524,
+      "name": "Cooking skill",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 1525,
+      "name": "Cooking daily quests completed",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 9,
+      "order": 2
+    },
+    {
+      "id": 1526,
+      "name": "Fishing daily quests completed",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 9,
+      "order": 10
+    },
+    {
+      "id": 1527,
+      "name": "Highest Alchemy skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 1
+    },
+    {
+      "id": 1532,
+      "name": "Highest Blacksmithing skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 1535,
+      "name": "Highest Enchanting skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 1536,
+      "name": "Highest Leatherworking skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 14
+    },
+    {
+      "id": 1537,
+      "name": "Highest Mining skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 16
+    },
+    {
+      "id": 1538,
+      "name": "Highest Herbalism skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 11
+    },
+    {
+      "id": 1539,
+      "name": "Highest Inscription skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 12
+    },
+    {
+      "id": 1541,
+      "name": "Highest Skinning skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 18
+    },
+    {
+      "id": 1542,
+      "name": "Highest Tailoring skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 19
+    },
+    {
+      "id": 1544,
+      "name": "Highest Engineering skill",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 1716,
+      "name": "Battleground with the most Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 17,
+      "order": 5
+    },
+    {
+      "id": 1719,
+      "name": "Battleground with the most Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 17,
+      "order": 5
+    },
+    {
+      "id": 1729,
+      "name": "Alchemy Recipes learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 1730,
+      "name": "Blacksmithing Plans learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 1734,
+      "name": "Engineering Schematics learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 10
+    },
+    {
+      "id": 1735,
+      "name": "Inscriptions learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 13
+    },
+    {
+      "id": 1740,
+      "name": "Leatherworking Patterns learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 15
+    },
+    {
+      "id": 1741,
+      "name": "Tailoring Patterns learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 20
+    },
+    {
+      "id": 1745,
+      "name": "Cooking Recipes known",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 3
+    },
+    {
+      "id": 1748,
+      "name": "First Aid Manuals learned",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 6
+    },
+    {
+      "id": 1976,
+      "name": "Dalaran Cooking Awards gained",
+      "categoryId": 178,
+      "categoryName": "Secondary Skills",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 2277,
+      "name": "Summons accepted",
+      "categoryId": 134,
+      "categoryName": "Travel",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 2
+    },
+    {
+      "id": 2396,
+      "name": "Battleground played the most",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 17,
+      "order": 2
+    },
+    {
+      "id": 2397,
+      "name": "Battleground won the most",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 17,
+      "order": 4
+    },
+    {
+      "id": 3216,
+      "name": "Smelting Recipes learned",
+      "categoryId": 173,
+      "categoryName": "Professions",
+      "parentCategoryId": 132,
+      "flags": 1,
+      "order": 17
+    },
+    {
+      "id": 6137,
+      "name": "Aku'mai kills (Blackfathom Deeps)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 39
+    },
+    {
+      "id": 6139,
+      "name": "Charlga Razorflank kills (Razorfen Kraul)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 40
+    },
+    {
+      "id": 6140,
+      "name": "Mekgineer Thermaplugg kills (Gnomeregan)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 41
+    },
+    {
+      "id": 6141,
+      "name": "Amnennar the Coldbringer kills (Razorfen Downs)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 42
+    },
+    {
+      "id": 6142,
+      "name": "Archaedas kills (Uldaman)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 44
+    },
+    {
+      "id": 6143,
+      "name": "Princess Theradras kills (Maraudon)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 46
+    },
+    {
+      "id": 6144,
+      "name": "Shade of Eranikus kills (Sunken Temple)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 47
+    },
+    {
+      "id": 6145,
+      "name": "Overlord Wyrmthalak kills (Lower Blackrock Spire)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 50
+    },
+    {
+      "id": 6146,
+      "name": "King Gordok kills (Dire Maul)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 49
+    },
+    {
+      "id": 6786,
+      "name": "High Inquisitor Whitemane kills (Scarlet Monastery)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 43
+    },
+    {
+      "id": 15027,
+      "name": "Bazzalan kills (Ragefire Chasm)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 35
+    },
+    {
+      "id": 15028,
+      "name": "Mutanus the Devourer kills (Wailing Caverns)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 36
+    },
+    {
+      "id": 15029,
+      "name": "Bazil Thredd kills (Stormwind Stockade)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 38
+    },
+    {
+      "id": 15030,
+      "name": "Darkmaster Gandling kills (Scholomance)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 52
+    },
+    {
+      "id": 15031,
+      "name": "Baron Rivendare kills (Stratholme)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 53
+    },
+    {
+      "id": 63570,
+      "name": "Edwin VanCleef Kills (Deadmines)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 3
+    },
+    {
+      "id": 63571,
+      "name": "Rath'mael Kills (Ruins of Lordaeron)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 4
+    },
+    {
+      "id": 63572,
+      "name": "Shade of the Archmage Kills (City of Dalaran)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 5
+    },
+    {
+      "id": 63573,
+      "name": "Durgen Dirgehammer Kills (Hall of Thanes)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 8
+    },
+    {
+      "id": 63574,
+      "name": "Nanaya Kills (Shaper's Terrace)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 9
+    },
+    {
+      "id": 63575,
+      "name": "Blazeroar Kills (Alcaz Prison)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 14
+    },
+    {
+      "id": 63580,
+      "name": "The Wild King kills (Hyjal Summit)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 15
+    },
+    {
+      "id": 63581,
+      "name": "Sonya Darkhallow Kills (Barrow Deeps)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 16
+    },
+    {
+      "id": 63589,
+      "name": "Lyn the Ignored Kills (City of Dalaran)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 524289,
+      "order": 7
+    },
+    {
+      "id": 63590,
+      "name": "Cinder Kills (Shaper's Terrace)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 1572865,
+      "order": 10
+    },
+    {
+      "id": 63592,
+      "name": "Bolt Kills (Shaper's Terrace)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 1572865,
+      "order": 12
+    },
+    {
+      "id": 63593,
+      "name": "Snowtalon Kills (Shaper's Terrace)",
+      "categoryId": 14821,
+      "categoryName": "Boss Kills",
+      "parentCategoryId": 14807,
+      "flags": 1572865,
+      "order": 13
+    },
+    {
+      "id": 64176,
+      "name": "Darkspear Islands victories",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 10
+    },
+    {
+      "id": 64179,
+      "name": "Darkspear Islands battles",
+      "categoryId": 153,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 21,
+      "flags": 1,
+      "order": 11
+    },
+    {
+      "id": 64180,
+      "name": "Darkspear Islands Honorable Kills",
+      "categoryId": 136,
+      "categoryName": "Honorable Kills",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 64181,
+      "name": "Darkspear Islands Killing Blows",
+      "categoryId": 137,
+      "categoryName": "Killing Blows",
+      "parentCategoryId": 128,
+      "flags": 1,
+      "order": 9
+    },
+    {
+      "id": 64182,
+      "name": "Deaths in Darkspear Islands",
+      "categoryId": 124,
+      "categoryName": "Battlegrounds",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 5
+    },
+    {
+      "id": 64183,
+      "name": "Total deaths in 20-player raids",
+      "categoryId": 125,
+      "categoryName": "Dungeons and Raids",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 64184,
+      "name": "Total 40-player raids entered",
+      "categoryId": 14807,
+      "categoryName": "Dungeons & Raids",
+      "parentCategoryId": 1,
+      "flags": 1,
+      "order": 4
+    },
+    {
+      "id": 64185,
+      "name": "Total deaths in 40-player raids",
+      "categoryId": 125,
+      "categoryName": "Dungeons and Raids",
+      "parentCategoryId": 122,
+      "flags": 1,
+      "order": 5
+    }
+  ]
+}

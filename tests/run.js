@@ -154,6 +154,65 @@ test('newspaper preview opens from minimap and slash command without creating lo
     SlashCmdList.LOOTBOT('newspaper')
     assert(LootBotNewsletterFrame:IsShown())
     assert(#db.own==0 and #LootBotMarker.textures==0)
+    assert(UISpecialFrames[1]=='LootBotNewsletterFrame')
+    assert(#LootBotNewsletterFrame.textures==0,'paper viewer must have no surrounding backdrop')
+    local viewport=LootBotNewsletterViewport
+    local width=viewport.scrollChild.width
+    viewport.scripts.OnMouseWheel(viewport,1)
+    assert(viewport.scrollChild.width>width,'mouse wheel must zoom the page')
+    viewport.scripts.OnMouseWheel(viewport,-1)
+    assert(math.abs(viewport.scrollChild.width-width)<0.0001)
+    LootBotNewsletterCloseButton.scripts.OnClick()
+    assert(not LootBotNewsletterFrame:IsShown())
+  `);
+  v.close();
+});
+test('statistics probe preserves unknown and protected values without sending data', () => {
+  const v = vm();
+  v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/StatisticsProbe.lua'), 'utf8'));
+  v.run(`
+    local secret={}
+    function issecretvalue(value) return value==secret end
+    function GetStatisticsCategoryList() return {1} end
+    function GetCategoryNumAchievements() return 4 end
+    function GetCategoryInfo() return 'Character' end
+    function GetAchievementInfo(id) return id,'Statistic '..id end
+    function GetStatistic(category,index) return ({'--','0','1234',secret})[index],false,tostring(index) end
+    local snapshot=LootBotStatisticsProbe.Capture()
+    assert(#snapshot.entries==4 and snapshot.populated==2)
+    assert(snapshot.entries[1].status=='unknown' and snapshot.entries[1].value=='--')
+    assert(snapshot.entries[2].status=='available' and snapshot.entries[2].value=='0')
+    assert(snapshot.entries[3].value=='1234' and snapshot.entries[3].numericValue==1234)
+    assert(snapshot.entries[4].status=='unknown' and snapshot.entries[4].value==nil)
+    assert(LootBotDB.statisticsProbe==snapshot)
+    GetStatistic=nil
+    snapshot=LootBotStatisticsProbe.Capture()
+    assert(snapshot.error=='Missing API: GetStatistic')
+    assert(LootBotDB.statisticsProbe==snapshot)
+  `);
+  v.close();
+});
+test('personal newspaper uses API values and never substitutes sample players for missing values', () => {
+  const v = vm();
+  v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/NewsletterPreview.lua'), 'utf8'));
+  v.run(`
+    LootBotStatisticsProbe={Capture=function() return {player='RealPlayer',entries={
+      {id=60,status='available',value='0',numericValue=0},
+      {id=114,status='available',value='3',numericValue=3},
+      {id=341,status='unknown'},
+    }} end}
+    LootBotNewsletterPreview.Show()
+    local labels=LootBotNewsletterViewport.scrollChild.labels
+    assert(labels[2].text:find('RealPlayer',1,true))
+    assert(labels[3].text=='Gravity remains undefeated.')
+    assert(labels[6].text:find('ALL DEATHS  0',1,true))
+    assert(labels[8].text:find('EPICS LOOTED  --',1,true))
+    for _,label in ipairs(labels) do assert(not label.text:find('Gruk',1,true)) end
+    LootBotStatisticsProbe.Capture=function() return {error='Unavailable'} end
+    LootBotNewsletterPreview.Refresh()
+    assert(labels[2].text:find('SAMPLE ISSUE',1,true))
   `);
   v.close();
 });

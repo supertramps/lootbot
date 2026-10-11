@@ -147,8 +147,15 @@ for _,event in ipairs({'PLAYER_LOGIN','CHAT_MSG_LOOT','PLAYER_LEVEL_UP','CHAT_MS
     'GUILD_ROSTER_UPDATE','PLAYER_GUILD_UPDATE','UI_SCALE_CHANGED','DISPLAY_SIZE_CHANGED'}) do driver:RegisterEvent(event) end
 SLASH_LOOTBOT1='/lootbot'
 SlashCmdList.LOOTBOT=function(command)
-    if not relay then return end
     command=(command or ''):lower():match('^%s*(.-)%s*$')
+    if command=='stats' then
+        if not LootBotStatisticsProbe then say('Restart the beta once to load the new statistics module.'); return end
+        local snapshot=LootBotStatisticsProbe.Capture()
+        if snapshot.error then say(snapshot.error)
+        else say('Read '..#snapshot.entries..' statistics; '..snapshot.populated..' have values. /reload saves this local snapshot for inspection.') end
+        return
+    end
+    if not relay then return end
     if command=='relay on' then db.enabled=true; relay:setRelay(true); say('Relay enabled. Other members have no marker.')
     elseif command=='relay off' then relay:setRelay(false); say('Member mode enabled; marker hidden.')
     elseif command=='sync' then relay:syncOptical(); relay.lastHello=-100; say('Saved records queued for replay; the shared service prevents duplicate posts.')
@@ -178,7 +185,7 @@ SlashCmdList.LOOTBOT=function(command)
     elseif command=='version' then
         local version,build,_,interface=GetBuildInfo(); say('LootBot 0.3; client '..version..', build '..build..', interface '..interface)
     else
-        say('relay on/off | sync | test | test level | test backlog | newspaper | filter [rare|epic] | on/off.')
+        say('relay on/off | sync | test | test level | test backlog | newspaper | stats | filter [rare|epic] | on/off.')
         say('Mode: '..(db.relay and 'relay' or 'member')..'; saved own events: '..#db.own..'; synced events: '..#db.inbox)
     end
 end
