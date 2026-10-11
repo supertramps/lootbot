@@ -65,7 +65,7 @@ public class ToolsWindow : Form {
   UiTheme.Label(settingsCard,"GUILD SETTINGS",20,16,280,20,true,UiTheme.Green,9);
   UiTheme.Label(settingsCard,"Each character sets rarity in WoW",20,44,740,30,true,UiTheme.Ink,15);
   UiTheme.Label(settingsCard,"/lootbot filter rare   or   /lootbot filter epic",20,79,730,24);
-  UiTheme.Label(settingsCard,"At level 40, that character stays on Epic. Grey, white and green never reach a relay.",20,107,770,42);
+  UiTheme.Label(settingsCard,"Normal play: level 40 stays on Epic; grey, white and green are hidden. All loot testing is in the relay window.",20,107,770,42);
   UiTheme.Label(settingsCard,"BLOCKED ITEM IDS",20,165,700,20,true,UiTheme.Muted,8.5f);
   UiTheme.Field(block,20,190,772);settingsCard.Controls.Add(block);
   UiTheme.Label(settingsCard,"Separate IDs with commas. Blocked items will not be announced.",20,226,750,23);

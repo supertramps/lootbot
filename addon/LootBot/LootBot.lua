@@ -71,8 +71,9 @@ local function recordLoot(data)
     -- Item information can arrive after the chat line. Hold it briefly rather
     -- than guessing a quality and ever drawing the relay marker for junk.
     if quality==nil then return false end
-    if quality<RARE or quality<effectiveQuality() then return true end
-    relay:record({kind='loot',itemId=data.itemId,quality=quality,quantity=data.quantity,itemName=data.itemName})
+    local testing=LootBotLocalTestSettings and LootBotLocalTestSettings.allLoot==true or false
+    if not testing and (quality<RARE or quality<effectiveQuality()) then return true end
+    relay:record({kind='loot',itemId=data.itemId,quality=quality,quantity=data.quantity,itemName=data.itemName,test=testing})
     return true
 end
 local function loot(message)

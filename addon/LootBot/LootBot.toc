@@ -6,6 +6,7 @@
 ## SavedVariables: LootBotDB
 Protocol.lua
 Relay.lua
+LocalTestSettings.lua
 StatisticsProbe.lua
 GuildStatistics.lua
 StatisticsSharing.lua

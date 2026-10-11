@@ -35,7 +35,9 @@ Open **Tools**. WoW can be completely closed; the relay capture does not need to
 
 Normal loot messages have twelve title variants for each rarity, a Wowhead Classic link, and an item icon when Wowhead provides one. They omit item-ID fields and detection footers. Wowhead outages do not stop ordinary loot delivery; an uncached manual item test needs a successful lookup. Catch-up summaries show a compact selection of items rather than a separate icon for every event.
 
-The addon records only loot that qualifies for that character. If item quality is briefly unavailable, it waits for item data rather than guessing and transmitting it. Existing older addon versions may still send junk through guild messages, but updated relays discard sub-blue loot before rendering it.
+The addon normally records only loot that qualifies for that character. If item quality is briefly unavailable, it waits for item data rather than guessing and transmitting it. Existing older addon versions may still send junk through guild messages, but updated relays discard ordinary sub-blue loot before rendering it.
+
+For low-level testing, enable **All loot (testing)** in the desktop relay window, then type `/reload` in WoW. On first use, choose the installed `Interface/AddOns/LootBot` folder if asked. Restart WoW once after upgrading to this build to load the new configuration module. The switch includes grey, white and green drops from characters using that local installation, marking them internally as test events so relays accept them. Preview logs them; Live can announce them in Discord. Turn the switch off and `/reload` to restore the existing personal rarity rules and level-40 lock. It does not change other guild members' filters or shared settings.
 
 ## Catch-up and reliability
 

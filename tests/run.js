@@ -263,6 +263,42 @@ test('statistics driver shares API data without optical traffic; round minimap m
   `); v.close();
 });
 
+test('all-loot testing sends real low-quality drops, without changing normal level-40 policy', () => {
+  const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/LocalTestSettings.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/LootBot.lua'),'utf8'));
+  v.run(`
+    MockLevel=1
+    LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LOGIN')
+    local db=LootBotDB.characters[UnitGUID('player')]
+    SlashCmdList.LOOTBOT('relay on')
+    local function loot(color,id)
+      LootBotDriver.scripts.OnEvent(LootBotDriver,'CHAT_MSG_LOOT','You receive loot: |cff'..color..'|Hitem:'..id..':0|h[Actual drop]|h|r.')
+    end
+    loot('9d9d9d',100); assert(#db.own==0)
+    LootBotLocalTestSettings.allLoot=true
+    loot('9d9d9d',101); loot('ffffff',102); loot('1eff00',103)
+    assert(#db.own==3 and db.own[1].quality==0 and db.own[2].quality==1 and db.own[3].quality==2)
+    for _,event in ipairs(db.own) do assert(event.test and event.player=='Alex-TestRealm' and event.itemName=='Actual drop') end
+    LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LEVEL_UP',40)
+    assert(db.epicLocked and db.personalQuality==4)
+    LootBotLocalTestSettings.allLoot=false
+    local count=#db.own
+    loot('1eff00',104); loot('0070dd',105); assert(#db.own==count)
+    loot('a335ee',106); assert(#db.own==count+1 and not db.own[#db.own].test)
+    return LootBotProtocol.packet(db.own[1])
+  `);
+  const event=decodePacket(v.bytes(),NOW);
+  assert(event && event.test && event.quality===0 && qualifies(event,validateSettings({minimumQuality:4})));
+  v.close();
+});
+
+test('desktop testing switch persists addon configuration and rejects unrelated folders', () => {
+  if(process.platform!=='win32') return;
+  const result=spawnSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'local-loot-settings.ps1')],{encoding:'utf8',windowsHide:true,timeout:10000});
+  assert.equal(result.status,0,result.stderr||result.error?.message);
+});
+
 test('personal filters discard junk before relay traffic and lock to Epic at level 40', () => {
   const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/LootBot.lua'),'utf8'));

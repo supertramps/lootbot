@@ -19,6 +19,7 @@ public class LootBotWindow : Form {
     readonly Button start = new Button();
     Process helper;
     bool exiting;
+    bool changingTest;
 
     public LootBotWindow() {
         Text="LootBot — Guild relay";ClientSize=new Size(820,630);MinimumSize=new Size(836,668);
@@ -40,12 +41,18 @@ public class LootBotWindow : Form {
         mode.SelectedIndex=0;session.Controls.Add(mode);
         UiTheme.Button(start,"Start relay",320,96,142,38,true);start.Click+=(s,e)=>StartHelper();session.Controls.Add(start);
         var stop=UiTheme.Button(session,"Stop",472,96,88,38,()=>StopHelper());
-        all.Text="All loot (local test)";all.Checked=true;all.Location=new Point(584,102);all.Size=new Size(176,27);
+        all.Text="All loot (testing)";all.Checked=LocalLootTesting.Enabled(root);all.Location=new Point(584,102);all.Size=new Size(176,27);
         all.ForeColor=UiTheme.Muted;session.Controls.Add(all);
-        if(File.Exists(Path.Combine(root,"cloud-config.json"))){
-            all.Checked=false;all.Enabled=false;all.Visible=false;
-            UiTheme.Label(session,"Shared service mode",584,103,176,24,false,UiTheme.Muted,9);
-        }
+        all.CheckedChanged+=(s,e)=>{
+            if(changingTest)return;
+            try {
+                if(!LocalLootTesting.Configure(this,root,all.Checked))throw new OperationCanceledException();
+                Append("All loot testing "+(all.Checked?"ON":"OFF")+" for this PC. Type /reload in WoW to apply.");
+            }catch(Exception error){
+                changingTest=true;all.Checked=LocalLootTesting.Enabled(root);changingTest=false;
+                if(!(error is OperationCanceledException))MessageBox.Show(this,error.Message,"LootBot");
+            }
+        };
         UiTheme.Label(session,"In WoW: /lootbot relay on   ·   Started after login? Use /lootbot sync.",20,140,730,21,false,UiTheme.Muted,9);
 
         var setup=UiTheme.Card(this,20,306,780,103);
@@ -102,12 +109,12 @@ public class LootBotWindow : Form {
         helper.OutputDataReceived+=(s,e)=>Append(e.Data);helper.ErrorDataReceived+=(s,e)=>Append(e.Data);
         helper.Exited+=(s,e)=>{
             Append("Relay helper stopped. You can review the log above.");
-            try {BeginInvoke(new Action(()=>{start.Enabled=true;mode.Enabled=true;all.Enabled=!File.Exists(Path.Combine(root,"cloud-config.json"));state.Text="STOPPED";state.ForeColor=UiTheme.Muted;tray.Text="LootBot — stopped";}));}
+            try {BeginInvoke(new Action(()=>{start.Enabled=true;mode.Enabled=true;all.Enabled=true;state.Text="STOPPED";state.ForeColor=UiTheme.Muted;tray.Text="LootBot — stopped";}));}
             catch(InvalidOperationException){}
         };
         try {
             helper.Start();helper.BeginOutputReadLine();helper.BeginErrorReadLine();
-            tray.Text=live?"LootBot — live relay":"LootBot — preview";start.Enabled=false;mode.Enabled=false;all.Enabled=false;
+            tray.Text=live?"LootBot — live relay":"LootBot — preview";start.Enabled=false;mode.Enabled=false;
             state.Text=live?"LIVE":"PREVIEW";state.ForeColor=UiTheme.Green;
         } catch(Exception) {Append("Could not start Node.js. Install Node.js LTS and reopen LootBot."); helper=null;}
     }
@@ -118,7 +125,7 @@ public class LootBotWindow : Form {
             } catch(InvalidOperationException) {} catch(IOException) {}
             helper.Dispose();helper=null;
         }
-        start.Enabled=true;mode.Enabled=true;all.Enabled=!File.Exists(Path.Combine(root,"cloud-config.json"));tray.Text="LootBot — stopped";status.Text="Stopped.";state.Text="STOPPED";state.ForeColor=UiTheme.Muted;
+        start.Enabled=true;mode.Enabled=true;all.Enabled=true;tray.Text="LootBot — stopped";status.Text="Stopped.";state.Text="STOPPED";state.ForeColor=UiTheme.Muted;
     }
     public static void SaveWebhook(string path,string url) {
         if(!Regex.IsMatch(url,@"\Ahttps://discord\.com/api(?:/v\d+)?/webhooks/\d+/[A-Za-z0-9_-]+\z")) throw new ArgumentException("Invalid webhook URL");
