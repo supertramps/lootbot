@@ -14,15 +14,19 @@ messaging: missing chunks are repaired by a subsequent snapshot or cache
 exchange, not guaranteed delivery. Different clients can temporarily show
 different coverage until they sync.
 
-Weeks begin Monday at 00:00 UTC. A character's first reading inside a week is
-the baseline, and the last reading is the end. The paper shows the previous
+Weeks begin Monday at 00:00 UTC. A new week's baseline is the last known
+reading, even from an earlier week. The latest reading is the end. Any missed
+activity counts in the week it is discovered; this is a casual guild paper,
+not an exact calendar audit. The paper shows the previous
 week if available, otherwise the most recent retained week. During the first
 week a welcome front page invites members back for Monday's first issue.
-Figures are recorded changes, not exact full-week activity. First login,
-30-minute sampling, logout and time away can leave gaps. A missing reading is
-not zero; a counter falling below its baseline is omitted. No increase across
-an offline week boundary is assigned to a new week. Four weeks are retained,
+Figures are recorded changes, not exact full-week activity. First-ever readings
+establish a baseline without counting lifetime totals. Missing values are not
+zero, and a counter falling below its baseline is omitted. Last-known numeric
+readings survive long breaks, pruning and addon restarts. Repeated readings
+do not double-count catch-up. Four weeks of newspaper history are retained,
 with up to 100 characters per weekly bucket, scoped by guild and realm.
+Persistent checkpoints hold at most 100 characters and 500 counters each.
 
 Three columns rotate among death causes/Hogger, quests/loot/kills/potions,
 and fishing/critters/emotes. Selection prefers counters with activity, so a

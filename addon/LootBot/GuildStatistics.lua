@@ -7,6 +7,27 @@ local function valid(v) return type(v)=='number' and v==v and v>=0 and v<=1e15 e
 local function cleanName(v) return type(v)=='string' and #v<=100 and not v:find('[|;=,%c]') end
 function G.New(db,api)
     db.weeks=db.weeks or {}
+    db.checkpoints=db.checkpoints or {}
+    local function remember(name,last,values)
+        local checkpoint=db.checkpoints[name]
+        if not checkpoint then
+            local count=0; for _ in pairs(db.checkpoints) do count=count+1 end
+            if count>=100 then return end
+            checkpoint={values={},times={}}; db.checkpoints[name]=checkpoint
+        end
+        local count=0; for _ in pairs(checkpoint.values) do count=count+1 end
+        for id,value in pairs(values) do
+            if valid(value) and (checkpoint.values[id]~=nil or count<500)
+                and (not checkpoint.times[id] or last>=checkpoint.times[id]) then
+                if checkpoint.values[id]==nil then count=count+1 end
+                checkpoint.values[id]=value; checkpoint.times[id]=last
+            end
+        end
+    end
+    -- Upgrade existing saved weeks before pruning; checkpoints survive long breaks.
+    for _,records in pairs(db.weeks) do
+        for name,record in pairs(records) do remember(name,record.last,record.finish) end
+    end
     local self={db=db,api=api,queue={},pending={},sequence=0}
     function self:Prune()
         local week=G.Week(api.now())
@@ -26,8 +47,10 @@ function G.New(db,api)
         if not old then
             local n=0; for _ in pairs(records) do n=n+1 end
             if n>=100 then return false end
+            remember(name,last,finish)
             records[name]={first=first,last=last,start=start,finish=finish}; return true
         end
+        remember(name,last,finish)
         if first<old.first then old.first=first; old.start=start end
         if last>old.last then old.last=last; old.finish=finish; return true end
         return false
@@ -57,9 +80,11 @@ function G.New(db,api)
             if not entry.hidden and valid(entry.id) and valid(entry.numericValue) then values[entry.id]=entry.numericValue end
         end
         local records=db.weeks[week] or {}; local old=records[name]
-        -- New IDs get their own current-value baseline; unknown is never zero.
+        -- Carry the last known value across weeks. Catch-up belongs to the
+        -- week it is discovered; a first-ever/unknown value is never zero.
+        local checkpoint=db.checkpoints[name]
         local start={}
-        for id,v in pairs(values) do start[id]=old and old.start[id] or v end
+        for id,v in pairs(values) do start[id]=old and old.start[id] or checkpoint and checkpoint.values[id] or v end
         local first=old and old.first or now
         if self:Merge(name,week,first,now,start,values) then
             -- Merge preserves the earlier baseline; retain newly readable IDs too.
@@ -182,7 +207,7 @@ function G.Edition(db,now)
         local board,total={},0
         for name,r in pairs(records) do
             local a,b=r.start[chosen[1]],r.finish[chosen[1]]
-            if a and b and b>=a and r.last>r.first then
+            if a and b and b>=a then
                 local delta=b-a
                 board[#board+1]={name=name:match('^[^-]+') or name,value=delta}; total=total+delta
             end
@@ -191,7 +216,7 @@ function G.Edition(db,now)
         if not star and board[1] and board[1].value>0 then star={id=chosen[1],name=board[1].name,value=board[1].value} end
         local lines={'THIS WEEK',''}
         for i=1,math.min(3,#board) do lines[#lines+1]=i..'  '..board[i].name..'  '..string.format('%.0f',board[i].value) end
-        if #board==0 then lines[#lines+1]='Waiting for two readings.' end
+        if #board==0 then lines[#lines+1]='No readings yet.' end
         lines[#lines+1]=''; lines[#lines+1]='Guild total: '..string.format('%.0f',total)
         field[names[column]..'Title']=chosen[2]; field[names[column]..'Body']=table.concat(lines,'\n')
         result.metrics[column]=chosen[1]
@@ -223,7 +248,7 @@ function G.Edition(db,now)
         notes[#notes+1]=name..' beat their previous '..(recordStar.id==193 and 'biggest hit' or 'biggest heal')..' record.'
     end
     field.lead=table.concat({notes[2],notes[3],
-        'Weekly changes between saved readings. Late joiners and time offline can leave gaps.',
+        'Changes since the last reading. Catch-up counts in the week you return.',
         partial and 'First week in progress. New edition Monday (UTC).' or 'Last week\'s activity. New edition Monday (UTC).'},'\n\n')
     if recordStar then field.lead=notes[#notes]..'\n\n'..field.lead end
     return result

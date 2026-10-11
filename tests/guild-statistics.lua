@@ -38,13 +38,17 @@ local previous=edition.id
 now=345600+(previous+1)*604800+3600
 edition=G.Edition(a.db,now)
 assert(not edition.partial and edition.id==previous)
--- A new week never absorbs increases accumulated while offline between weeks.
+-- Missed activity is credited to the week of return, including the first reading.
 a:Capture(snapshot(130,1500,500,100))
+local firstReturn=G.Edition({weeks={[G.Week(now)]=a.db.weeks[G.Week(now)]}},now+604800)
+assert(firstReturn.fields.leftBody:find('Guild total: 22',1,true))
 now=now+3600; a:Capture(snapshot(131,1502,504,250))
 local fresh=G.Edition({weeks={[G.Week(now)]=a.db.weeks[G.Week(now)]}},now+604800)
 assert(fresh.fields.headline=='Alex landed a 250 hit.')
 assert(fresh.fields.lead:find('previous biggest hit',1,true))
-assert(fresh.fields.leftBody:find('Guild total: 1',1,true))
+assert(fresh.fields.leftBody:find('Guild total: 23',1,true))
+flush(a,sentA,b,'Alex-Realm')
+assert(b.db.weeks[G.Week(now)]['Alex-Realm'].start[60]==108)
 -- Counter resets produce no negative totals or fabricated recovered activity.
 now=now+3600; a:Capture(snapshot(1,1502,504,250))
 local reset=G.Edition({weeks={[G.Week(now)]=a.db.weeks[G.Week(now)]}},now+604800)
@@ -55,7 +59,7 @@ assert(not a:Merge('Stranger-Realm',week,now-10,now,{[60]=0},{[60]=10}))
 assert(not a:Merge('Friend-Realm',week,now-10,now+1000,{[60]=0},{[60]=10}))
 assert(not a:Merge('Friend-Realm',week,now-604800,now,{[60]=0},{[60]=10}))
 b:Receive('D;bad;Alex-Realm;'..week..';'..now..';'..now..';1;1;60=0=999','Stranger-Realm','GUILD')
-assert(b.db.weeks[week]==nil)
+assert(b.db.weeks[week]['Alex-Realm'].finish[60]==131)
 -- Late join gets cached readings for offline peers from one selected member.
 local c=G.New({},api('Friend-Realm',{}))
 c:Join(); c:Receive('OFFER','Alex-Realm','WHISPER')
@@ -68,9 +72,20 @@ now=now+1800; a:Capture({entries=entries})
 assert(#a.queue>1)
 flush(a,sentA,c,'Alex-Realm')
 assert(c.db.weeks[week]['Alex-Realm'].finish[10201]==20100)
--- Retention bounded to four weekly buckets; gaps never borrow older baselines.
+-- Weekly history is bounded, but last-known readings survive pruning/restart.
 now=now+4*604800; a:Prune()
 assert(a.db.weeks[previous]==nil)
+local saved=a.db
+a=G.New(saved,api('Alex-Realm',sentA))
+a:Capture(snapshot(5,1510,510,250))
+assert(a.db.weeks[G.Week(now)]['Alex-Realm'].start[60]==1)
+assert(a.db.weeks[G.Week(now)]['Alex-Realm'].finish[60]==5)
+now=now+1800; a:Capture(snapshot(5,1510,510,250))
+assert(G.Edition({weeks={[G.Week(now)]=a.db.weeks[G.Week(now)]}},now+604800).fields.leftBody:find('Guild total: 4',1,true))
+-- A temporarily missing counter retains its last-known checkpoint, not zero.
+now=now+604800; a:Capture({entries={{id=60,numericValue=6}}})
+now=now+1800; a:Capture(snapshot(6,1512,512,250))
+assert(a.db.weeks[G.Week(now)]['Alex-Realm'].start[1518]==510)
 local t1=G.Edition({weeks={[G.Week(now)]={['Alex-Realm']={first=now-10,last=now,start={[60]=0},finish={[60]=0}}}}},now+604800)
 local t2=G.Edition({weeks={[G.Week(now)+1]={['Alex-Realm']={first=now+604800-10,last=now+604800,start={[60]=0},finish={[60]=0}}}}},now+2*604800)
 assert(t1.template~=t2.template and t1.metrics[1]~=t2.metrics[1])
