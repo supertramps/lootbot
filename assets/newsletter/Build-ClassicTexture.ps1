@@ -1,8 +1,12 @@
+param(
+    [string]$SourceName = 'newspaper-front-page-template.png',
+    [string]$TargetName = 'NewsletterPage.png'
+)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
-$sourcePath = Join-Path $PSScriptRoot 'newspaper-front-page-template.png'
-$targetPath = Join-Path $PSScriptRoot '..\..\addon\LootBot\NewsletterPage.png'
+$sourcePath = Join-Path $PSScriptRoot $SourceName
+$targetPath = Join-Path (Join-Path $PSScriptRoot '..\..\addon\LootBot') $TargetName
 $source = [System.Drawing.Image]::FromFile($sourcePath)
 $bitmap = New-Object System.Drawing.Bitmap(2048, 2048, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)

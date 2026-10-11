@@ -49,6 +49,7 @@ function CreateFrame(_, name)
     function frame:CreateTexture()
         local texture = { SetSize=nop, SetPoint=nop, SetAllPoints=nop, SetTexture=nop, SetTexCoord=nop, Hide=nop }
         function texture:SetColorTexture(r) self.color=r end
+        function texture:SetTexture(path) self.path=path end
         self.textures[#self.textures+1]=texture
         return texture
     end
@@ -56,6 +57,8 @@ function CreateFrame(_, name)
         local label={ SetPoint=nop, ClearAllPoints=nop, SetSize=nop, SetJustifyH=nop, SetJustifyV=nop,
             SetTextColor=nop, Hide=nop, font=inherits }
         function label:SetFont(path) self.font=path end
+        function label:Show() self.shown=true end
+        function label:Hide() self.shown=false end
         function label:SetText(value)
             assert(self.font,'FontString:SetText(): Font not set')
             self.text=value

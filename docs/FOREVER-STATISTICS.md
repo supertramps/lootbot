@@ -29,7 +29,7 @@ number is zero or nonnumeric; a real API zero therefore remains a known zero
 in LootBot. Missing/protected values remain unknown, and hidden rows are tagged.
 
 `/lootbot stats` captures this character's exposed catalogue and values into
-`LootBotDB.statisticsProbe`. Opening the newspaper also captures them. WoW
+`LootBotDB.statisticsProbe`. Automatic guild collection uses the same reader. WoW
 writes that SavedVariables snapshot on reload or logout, making it available
 for a later local JSON/CSV export. Nothing is sent to the relay or guild by
 this module.
@@ -40,9 +40,11 @@ boss kills, need rolls, health potions, fishing, critters, hugs, waves and
 facepalms. They are labelled lifetime totals. Boss totals cover readable,
 visible boss counters only. Missing counters show `--`.
 
-Weekly results require dated snapshots and a baseline; maximum-hit statistics
-cannot be treated as an additive weekly count. Guild rankings require member
-snapshots and syncing. A player's live API catalogue remains authoritative if
-the beta changes its definitions or filters entries. This integration still
-needs a live capture from the current beta character; automated tests verify
-format handling and UI behavior with mocks.
+GuildStatistics.lua and StatisticsSharing.lua now collect periodic numeric
+readings for guild members and calculate weekly changes. See WEEKLY-GAZETTE.md
+for transport, coverage and reset rules. Maximum hits/heals are personal
+records, never additive counts. The reader still captures the complete
+exposed catalogue locally, including unknown/raw values; sharing excludes
+hidden, protected and nonnumeric values. Live beta values and multiplayer
+delivery still need an in-game check. Tests cover the actual Lua with mocked
+API values and several simulated guild peers.

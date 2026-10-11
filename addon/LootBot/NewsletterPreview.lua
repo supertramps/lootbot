@@ -1,5 +1,4 @@
--- Paper viewer. Uses this character's API statistics when available; the
--- clearly labelled sample issue is the fallback for clients without data.
+-- Borderless weekly paper and separate first-week welcome cover.
 LootBotNewsletterPreview = {}
 local News = LootBotNewsletterPreview
 
@@ -60,6 +59,7 @@ paper:SetTexture('Interface\\AddOns\\LootBot\\NewsletterPage.png')
 paper:SetTexCoord(0.125,0.875,0,1)
 
 local fields,fieldsByKey={},{}
+local applyZoom
 for _,slot in ipairs(slots) do
     local label=content:CreateFontString(nil,'OVERLAY','GameFontNormal')
     label:SetJustifyH(slot.center and 'CENTER' or 'LEFT')
@@ -72,6 +72,27 @@ for _,slot in ipairs(slots) do
 end
 
 function News.Refresh()
+    News.editionId=nil
+    for _,field in ipairs(fields) do field.label:Show() end
+    local edition=LootBotGuildStatistics and LootBotGuildStatistics.CurrentEdition and LootBotGuildStatistics.CurrentEdition()
+    if edition then
+        if edition.launch then
+            for _,field in ipairs(fields) do field.label:Hide() end
+            paper:SetTexture('Interface\\AddOns\\LootBot\\NewsletterWelcome.png')
+            News.editionId='welcome'
+            return edition
+        end
+        for key,value in pairs(edition.fields) do if fieldsByKey[key] then fieldsByKey[key]:SetText(value) end end
+        fieldsByKey.masthead:SetText('ORIGINAL FORMALITIES\nWEEKLY')
+        News.template=edition.template
+        applyZoom(pageWidth)
+        paper:SetTexture('Interface\\AddOns\\LootBot\\NewsletterHorde'..edition.template..'.png')
+        News.editionId=edition.id
+        return edition
+    end
+    paper:SetTexture('Interface\\AddOns\\LootBot\\NewsletterHorde1.png')
+    News.template=1
+    applyZoom(pageWidth)
     local snapshot=LootBotStatisticsProbe and LootBotStatisticsProbe.Capture()
     if not snapshot or snapshot.error or #snapshot.entries==0 then
         for _,field in ipairs(fields) do field.label:SetText(field.slot.display) end
@@ -112,7 +133,7 @@ function News.Refresh()
     return snapshot
 end
 
-local function applyZoom(width)
+applyZoom=function(width)
     local oldWidth=pageWidth
     pageWidth=math.max(MIN_WIDTH,math.min(MAX_WIDTH,width))
     local scale=pageWidth/PAGE_W
@@ -120,10 +141,14 @@ local function applyZoom(width)
     for _,field in ipairs(fields) do
         local slot,label=field.slot,field.label
         label:ClearAllPoints()
-        label:SetPoint('TOPLEFT',content,'TOPLEFT',slot.x*scale,-slot.y*scale)
+        local y=slot.y
+        if News.template==3 and (slot.key:find('Title') or slot.key:find('Body')) then y=y+50 end
+        label:SetPoint('TOPLEFT',content,'TOPLEFT',slot.x*scale,-y*scale)
         label:SetSize(slot.w*scale,slot.h*scale)
-        label:SetFont((slot.key=='masthead' or slot.key=='headline') and 'Fonts\\MORPHEUS.TTF' or STANDARD_TEXT_FONT,
-            math.max(9,slot.size*scale))
+        local size=slot.key=='masthead' and 40 or slot.key=='headline' and 44 or slot.key=='lead' and 26
+            or slot.key:find('Body') and 23 or slot.size
+        local strong=slot.key=='masthead' or slot.key=='headline' or slot.key:find('Title')
+        label:SetFont('Interface\\AddOns\\LootBot\\Fonts\\CrimsonText-'..(strong and 'SemiBold' or 'Regular')..'.ttf',math.max(9,size*scale))
     end
     local ratio=pageWidth/oldWidth
     local viewportH=fitWidth*PAGE_H/PAGE_W
@@ -161,16 +186,33 @@ end)
 local button=CreateFrame('Button','LootBotNewsletterMinimapButton',Minimap)
 button:SetSize(31,31)
 button:SetPoint('TOPLEFT',Minimap,'TOPLEFT',-11,11)
-button:SetNormalTexture('Interface\\Icons\\INV_Misc_Note_01')
+local buttonBackground=button:CreateTexture(nil,'BACKGROUND')
+buttonBackground:SetSize(24,24)
+buttonBackground:SetPoint('TOPLEFT',button,'TOPLEFT',2,-2)
+buttonBackground:SetTexture('Interface\\Minimap\\UI-Minimap-Background')
+local buttonIcon=button:CreateTexture(nil,'ARTWORK')
+buttonIcon:SetSize(20,20)
+buttonIcon:SetPoint('TOPLEFT',button,'TOPLEFT',7,-5)
+-- Blizzard's portrait helper produces a circular icon on Classic as well.
+if SetPortraitToTexture then SetPortraitToTexture(buttonIcon,'Interface\\Icons\\INV_Misc_Note_01')
+else buttonIcon:SetTexture('Interface\\Icons\\INV_Misc_Note_01') end
+local buttonBorder=button:CreateTexture(nil,'OVERLAY')
+buttonBorder:SetSize(54,54)
+buttonBorder:SetPoint('TOPLEFT',button,'TOPLEFT',0,0)
+buttonBorder:SetTexture('Interface\\Minimap\\MiniMap-TrackingBorder')
 button:SetHighlightTexture('Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight')
 button:SetScript('OnClick',function() News.Toggle() end)
-local badge=button:CreateTexture(nil,'OVERLAY')
-badge:SetSize(17,17)
-badge:SetPoint('TOPRIGHT',button,'TOPRIGHT',5,5)
-badge:SetColorTexture(0.64,0.13,0.12,1)
 local badgeText=button:CreateFontString(nil,'OVERLAY','GameFontNormalSmall')
-badgeText:SetPoint('CENTER',badge,'CENTER',0,0)
-badgeText:SetText('1')
+badgeText:SetPoint('TOPRIGHT',button,'TOPRIGHT',2,2)
+badgeText:SetText('!')
+badgeText:Hide()
+function News.UpdateBadge()
+    local edition=LootBotGuildStatistics and LootBotGuildStatistics.CurrentEdition and LootBotGuildStatistics.CurrentEdition()
+    local key=UnitGUID('player')
+    local read=LootBotDB and LootBotDB.newspaperRead and LootBotDB.newspaperRead[key]
+    local token=edition and (edition.launch and 'welcome' or edition.id)
+    if token and read~=token then badgeText:Show() else badgeText:Hide() end
+end
 
 function News.Toggle()
     if frame:IsShown() then frame:Hide()
@@ -178,7 +220,11 @@ function News.Toggle()
 end
 function News.Show()
     News.Refresh()
-    frame:Show(); badge:Hide(); badgeText:Hide()
+    frame:Show(); badgeText:Hide()
+    if News.editionId then
+        LootBotDB=LootBotDB or {}; LootBotDB.newspaperRead=LootBotDB.newspaperRead or {}
+        LootBotDB.newspaperRead[UnitGUID('player')]=News.editionId
+    end
 end
 applyZoom(pageWidth)
 frame:Hide()

@@ -148,6 +148,13 @@ for _,event in ipairs({'PLAYER_LOGIN','CHAT_MSG_LOOT','PLAYER_LEVEL_UP','CHAT_MS
 SLASH_LOOTBOT1='/lootbot'
 SlashCmdList.LOOTBOT=function(command)
     command=(command or ''):lower():match('^%s*(.-)%s*$')
+    if command=='stats on' or command=='stats off' then
+        if LootBotGuildStatistics and LootBotGuildStatistics.Sharing then
+            LootBotGuildStatistics.Sharing(command=='stats on')
+            say(command=='stats on' and 'Guild statistics sharing enabled.' or 'Guild statistics sharing paused. Previously shared readings remain with guild members.')
+        end
+        return
+    end
     if command=='stats' then
         if not LootBotStatisticsProbe then say('Restart the beta once to load the new statistics module.'); return end
         local snapshot=LootBotStatisticsProbe.Capture()

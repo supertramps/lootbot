@@ -1,4 +1,4 @@
--- Manual beta API check. Reads only this character and never sends data.
+-- Direct character API reader. Transport lives separately in StatisticsSharing.
 LootBotStatisticsProbe = {}
 local function readable(value)
     return not (issecretvalue and issecretvalue(value))

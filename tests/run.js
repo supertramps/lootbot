@@ -216,6 +216,53 @@ test('personal newspaper uses API values and never substitutes sample players fo
   `);
   v.close();
 });
+test('guild weekly statistics: peers, cache, deltas, headline, resets, chunking and rotation', () => {
+  const v=vm();
+  v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/GuildStatistics.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'guild-statistics.lua'),'utf8')); v.close();
+});
+
+test('statistics driver shares API data without optical traffic; round minimap marks unread weeks', () => {
+  const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  for(const file of ['GuildStatistics','StatisticsSharing','LootBot','NewsletterPreview'])
+    v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
+  v.run(`
+    local clock=GetServerTime()
+    GetServerTime=function() return clock end
+    local captures,sends=0,0
+    LootBotStatisticsProbe={Capture=function() captures=captures+1; return {entries={{id=60,numericValue=captures}}} end}
+    C_ChatInfo.SendAddonMessage=function(prefix,message) assert(prefix=='LootBotNews1'); sends=sends+1 end
+    LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LOGIN')
+    LootBotStatisticsDriver.scripts.OnEvent(LootBotStatisticsDriver,'PLAYER_LOGIN')
+    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
+    assert(captures==1 and sends>0)
+    for i=1,10 do LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1) end
+    assert(captures==1 and not LootBotMarker.shown and #LootBotMarker.textures==0)
+    clock=clock+1800
+    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
+    assert(captures==2)
+    LootBotNewsletterPreview.Show()
+    assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterWelcome.png',1,true))
+    for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do assert(label.shown==false) end
+    local icon=LootBotNewsletterMinimapButton
+    assert(icon.textures[3].path=='Interface\\\\Minimap\\\\MiniMap-TrackingBorder')
+    clock=clock+604800
+    LootBotNewsletterPreview.UpdateBadge()
+    assert(icon.labels[1].shown)
+    LootBotNewsletterPreview.Show()
+    assert(not icon.labels[1].shown)
+    LootBotNewsletterPreview.UpdateBadge()
+    assert(not icon.labels[1].shown)
+    assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterHorde',1,true))
+    for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do assert(label.shown==true) end
+    SlashCmdList.LOOTBOT('stats off')
+    local before=captures
+    clock=clock+1800
+    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
+    assert(captures==before and LootBotDB.shareStatistics==false)
+  `); v.close();
+});
+
 test('personal filters discard junk before relay traffic and lock to Epic at level 40', () => {
   const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/LootBot.lua'),'utf8'));

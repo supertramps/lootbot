@@ -1,11 +1,13 @@
 ## Interface: 11509, 16001
 ## Title: LootBot
-## Notes: Broadcasts your own loot through a visible optical marker to the LootBot desktop helper.
+## Notes: Guild loot relay and weekly Guild Gazette, with direct API statistics.
 ## Author: LootBot
 ## Version: 0.3.0
 ## SavedVariables: LootBotDB
 Protocol.lua
 Relay.lua
 StatisticsProbe.lua
+GuildStatistics.lua
+StatisticsSharing.lua
 LootBot.lua
 NewsletterPreview.lua
