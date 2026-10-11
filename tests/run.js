@@ -371,6 +371,12 @@ test('saved webhook roundtrip tolerates the newline written by Setup', () => {
     fs.rmdirSync(temporary);
   }
 });
+test('capture recognises beta/release clients and rejects voice proxies and launchers', () => {
+  if(process.platform!=='win32')return;
+  const result=spawnSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'capture-processes.ps1')],{encoding:'utf8',windowsHide:true,timeout:10000});
+  assert.equal(result.status,0,result.stderr||result.error?.message);
+});
+
 test('Windows GDI decoder reads synthetic pixels and rejects ambiguous pixels', () => {
   if (process.platform !== 'win32') { console.log('  Windows-only pixel test skipped'); return; }
   const result = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',

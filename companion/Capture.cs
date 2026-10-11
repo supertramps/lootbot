@@ -15,17 +15,19 @@ public static class LootBotCapture {
     [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] static extern bool SetProcessDpiAwarenessContext(IntPtr context);
 
-    static bool IsWoW(Process p) {
-        return p.ProcessName.Equals("WowClassic", StringComparison.OrdinalIgnoreCase) ||
-            p.ProcessName.Equals("WowClassicT", StringComparison.OrdinalIgnoreCase) ||
-            p.ProcessName.Equals("Wow", StringComparison.OrdinalIgnoreCase) ||
-            p.ProcessName.Equals("WowT", StringComparison.OrdinalIgnoreCase);
+    public static bool IsSupportedProcessName(string name) {
+        return string.Equals(name,"WowClassic", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name,"WowClassicT", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name,"WowClassicB", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name,"Wow", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name,"WowT", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name,"WowB", StringComparison.OrdinalIgnoreCase);
     }
     static IntPtr FindWindow(int pid) {
         foreach (Process p in Process.GetProcesses()) {
             using (p) {
                 try {
-                    if ((pid == 0 || p.Id == pid) && IsWoW(p) && p.MainWindowHandle != IntPtr.Zero &&
+                    if ((pid == 0 || p.Id == pid) && IsSupportedProcessName(p.ProcessName) && p.MainWindowHandle != IntPtr.Zero &&
                         IsWindowVisible(p.MainWindowHandle) && !IsIconic(p.MainWindowHandle)) return p.MainWindowHandle;
                 } catch (InvalidOperationException) {} catch (System.ComponentModel.Win32Exception) {}
             }
