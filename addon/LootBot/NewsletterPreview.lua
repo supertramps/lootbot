@@ -55,7 +55,7 @@ local content=CreateFrame('Frame',nil,scroll)
 scroll:SetScrollChild(content)
 local paper=content:CreateTexture(nil,'ARTWORK')
 paper:SetAllPoints(content)
-paper:SetTexture('Interface\\AddOns\\LootBot\\NewsletterPage.png')
+-- Load a paper texture only when a reader opens an issue.
 paper:SetTexCoord(0.125,0.875,0,1)
 
 local fields,fieldsByKey={},{}
