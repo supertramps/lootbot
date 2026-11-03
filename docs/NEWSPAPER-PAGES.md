@@ -14,10 +14,12 @@ engraved Horde illustrations, narrow text columns and fictional advertisements.
 Actual names and figures are typeset by the addon, never painted into the art.
 Large inside-page callouts make the guild numbers easy to find among the ads.
 
-Every weekly edition prints its publication date: Monday 00:00 UTC after
-the covered week. Reopening later does not change that date. This is the date
-of the automatic weekly edition, not the date a software update was installed.
-Late sync may update the readings within an issue; it retains that issue date.
+Monday 00:00 UTC starts a new publication window. The designated publisher
+character prints automatically while in game, after a short synchronization
+period. The front page prints the actual publication date. Reopening later
+does not change it. A late publisher login can therefore produce a later date.
+Once published, the pages and figures are frozen; late reports wait for the
+next paper. All members need addon 0.4.1 for this shared-copy behavior.
 After the first collection week, even a week with no readings gets a fresh
 Monday front/back issue. Missing reports are not replaced with older figures.
 
@@ -30,19 +32,36 @@ There is no statistics/newsletter upload to the Cloudflare D1 database. That
 shared service still handles Discord loot and level announcements separately.
 
 The relay executable can therefore be offline all weekend. Other guild addons
-continue collecting and sharing. On Monday, any running addon selects last
-week's available readings, computes highlights, chooses the bundled artwork
-and overlays text using font strings. No image-generation service runs then;
-the illustrations, ads and layout plates are already installed.
+continue collecting and sharing. The first configured relay character becomes
+the pinned publisher (`/lootbot relay on` is the normal relay setup command).
+The publisher automatically builds one issue each publication week, freezes
+the actual page text, and distributes the same payload through guild messages.
+Readers choose bundled artwork and overlay the frozen text using font strings.
+No image-generation service runs then; the illustrations, ads and layout plates
+are already installed. `/lootbot newspaper status` shows the publisher and latest
+available paper. Other relay characters do not replace a pinned publisher.
 
-If everyone is offline at the weekly boundary, the next login/open builds the
-Monday-dated issue. A character whose data never reached another addon keeps
-that report on their own PC until they next overlap with somebody. Late data
-can update the same Monday issue on reopening. Peers may temporarily show
-different coverage. This is distributed, best-effort publishing, not a central
-immutable issue stored in D1. An authoritative centrally published paper would
-require a separate stats-upload/publishing service and a way for addons to
-receive its contents; that is not implemented by this build.
+If the publisher is offline at the boundary, printing waits for that character
+to log in. The .exe is not needed for this. New readers can get a complete copy
+from any online guildmate who has it, even after the publisher leaves. If no
+copy-holder is online, receipt waits. Login is not an Internet download. The
+transfer uses bounded chunks, a checksum and acknowledgments/retries; incomplete
+or corrupted transfers do not become an issue. Four issues are retained locally.
+
+The first minute allows reports and cached issues to arrive. Printing then
+waits until incoming stats have been quiet for 15 seconds, up to ten minutes
+after startup/week change. An existing announced issue is retrieved rather
+than rebuilt. Published data and last-printed counter baselines travel together,
+so a recovered publisher can resume without counting activity twice. The next
+paper compares the newest known totals with the last printed totals; late
+historical readings can therefore enter a later issue without editing the old
+one. First-ever counters still establish a baseline, never lifetime-from-zero.
+
+This is one publisher with trusted guild peer distribution, not an always-on
+Cloudflare publishing service. SavedVariables writes occur at logout/reload,
+so normal WoW persistence and crash limitations apply. A scheduled release
+while the publisher never logs in would require an additional online service
+and an inbound delivery route to the game; that is outside this build.
 
 ## When a story makes the paper
 

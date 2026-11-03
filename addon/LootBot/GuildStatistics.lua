@@ -3,6 +3,7 @@ LootBotGuildStatistics = {}
 local G=LootBotGuildStatistics
 local WEEK,MONDAY=604800,345600
 function G.Week(t) return math.floor((t-MONDAY)/WEEK) end
+local publicationIds={60,98,107,108,112,114,115,189,193,336,341,345,381,594,1042,1044,1047,1065,1066,1518,900001,900002,900003}
 local function valid(v) return type(v)=='number' and v==v and v>=0 and v<=1e15 end
 local function cleanName(v) return type(v)=='string' and #v<=100 and not v:find('[|;=,%c]') end
 function G.New(db,api)
@@ -163,6 +164,39 @@ function G.New(db,api)
     end
     self:Prune()
     return self
+end
+
+-- Publishing compares known readings with the last printed readings, not just
+-- calendar buckets. A late historical report can then enter the next issue.
+function G.PublicationDraft(db,now,printed,member)
+    local current=G.Week(now)
+    if (db.startedWeek or current)>=current then return G.Launch(now) end
+    local records,readings,previous={},{},{}
+    for player,checkpoint in pairs(db.checkpoints or {}) do
+        if not member or member(player) then
+            local start,finish={},{}
+            for _,id in ipairs(publicationIds) do
+                local value=checkpoint.values[id]
+                if type(value)=='number' then
+                    local baseline=printed[player] and printed[player][id]
+                    if baseline==nil then
+                        local earliest
+                        for _,weekRecords in pairs(db.weeks or {}) do
+                            local r=weekRecords[player]
+                            if r and r.start[id]~=nil and (not earliest or r.first<earliest) then earliest=r.first;baseline=r.start[id] end
+                        end
+                    end
+                    start[id]=baseline==nil and value or baseline
+                    finish[id]=value
+                end
+            end
+            records[player]={first=now,last=now,start=start,finish=finish};readings[player]=finish
+        end
+    end
+    for player,values in pairs(printed) do previous[player]={start=values,finish=values,first=now,last=now} end
+    local history={startedWeek=db.startedWeek,weeks={[current-1]=records}}
+    if next(previous) then history.weeks[current-2]=previous end
+    return G.Edition(history,now),readings
 end
 
 -- Three changing leaderboards, mixing mishaps, progress and odd habits.

@@ -46,6 +46,13 @@ Next below the page. The wheel zooms; drag pans the enlarged paper. Try
 `/lootbot newspaper demo` for a clearly labelled made-up issue. Demo data
 never becomes saved or shared guild statistics.
 
+All members need 0.4.1. The configured relay character is the automatic
+publisher: Monday's issue prints when that character is online after syncing.
+Everyone receives the same fixed issue from the publisher or another online
+copy-holder. The .exe is not involved. `/lootbot newspaper status` shows the
+publisher. Late reports wait for a later paper; stats and issues are saved in
+WoW's local SavedVariables, not the Cloudflare database.
+
 Weekly pages highlight actual reported gold balances, confirmed personal
 repair bills, world honorable kills, levels and other active counters. Quiet
 or unavailable sections are omitted. Dates belong to the weekly edition.

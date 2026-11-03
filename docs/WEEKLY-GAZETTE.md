@@ -12,15 +12,20 @@ copy from everyone. This can recover earlier readings for offline characters.
 At least one online addon peer must have a saved copy. It is best-effort guild
 messaging: missing chunks are repaired by a subsequent snapshot or cache
 exchange, not guaranteed delivery. Different clients can temporarily show
-different coverage until they sync.
+different raw coverage until they sync. The published paper is a separate,
+fixed copy: readers do not recompute it from their own raw cache.
 
-Weeks begin Monday at 00:00 UTC. A new week's baseline is the last known
-reading, even from an earlier week. The latest reading is the end. Any missed
-activity counts in the week it is discovered; this is a casual guild paper,
-not an exact calendar audit. The paper shows the previous
-week's readings. If none are available after collection has begun, Monday
-still gets a new quiet front/back issue without reusing older numbers. During the first
+Raw weeks begin Monday at 00:00 UTC. The publisher compares the newest known
+readings with the last printed readings for the featured counters. Late data
+enters a later issue rather than changing a published one. This is a casual
+guild paper, not an exact calendar audit. A quiet publication can still have
+a front/back issue without invented figures. During the first
 week a welcome front page invites members back for Monday's first issue.
+The first configured relay character becomes the publisher and prints
+automatically after syncing in the new Monday publication window. If that
+character is offline, printing waits for login. The .exe is not required.
+Complete issues are cached and forwarded by guild peers. Publication dates
+reflect actual printing; all members need 0.4.1. See NEWSPAPER-PAGES.md.
 Figures are recorded changes, not exact full-week activity. First-ever readings
 establish a baseline without counting lifetime totals. Missing values are not
 zero, and a counter falling below its baseline is omitted. Last-known numeric

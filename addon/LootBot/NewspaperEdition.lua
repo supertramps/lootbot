@@ -12,6 +12,14 @@ function N.Date(timestamp)
     local formatter=date or (os and os.date)
     return formatter and formatter('!%d %B %Y',timestamp):gsub('^!','') or ('Edition '..tostring(timestamp))
 end
+function N.PublicationDate(edition,timestamp)
+    local previous=N.Date(edition.publishedAt)
+    edition.publishedAt=timestamp
+    for _,page in ipairs(edition.pages) do
+        page.fields.edition='PUBLISHED '..N.Date(timestamp)..'  |  ORIGINAL FORMALITIES  |  WEEKLY EDITION'
+        if page.fields.footer then page.fields.footer=page.fields.footer:gsub(previous,N.Date(timestamp)) end
+    end
+end
 local function rows(records,id,absolute)
     local out={}
     for name,r in pairs(records) do

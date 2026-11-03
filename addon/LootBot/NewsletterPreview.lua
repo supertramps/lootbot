@@ -84,6 +84,7 @@ function News.Refresh()
     for _,field in ipairs(fields) do field.label:Show() end
     local edition=News.previewEdition or (LootBotGuildStatistics and LootBotGuildStatistics.CurrentEdition and LootBotGuildStatistics.CurrentEdition())
     if edition then
+        News.waiting=edition.waiting==true
         if edition.launch and LootBotNewspaperEdition and not edition.pages then LootBotNewspaperEdition.Welcome(edition,GetServerTime()) end
         if edition.pages and #edition.pages>0 then
             pages=edition.pages
@@ -216,7 +217,7 @@ renderPage=function()
     pageWidth=MIN_WIDTH;applyZoom(MIN_WIDTH)
     scroll:SetHorizontalScroll(0);scroll:SetVerticalScroll(0)
     News.pageIndex=pageIndex
-    pageLabel:SetText(pageIndex..' / '..#pages..'  -  '..page.name)
+    pageLabel:SetText(pageIndex..' / '..#pages..'  -  '..(News.waiting and 'Awaiting printed issue' or page.name))
     previousButton:SetEnabled(pageIndex>1);nextButton:SetEnabled(pageIndex<#pages)
     previousButton:SetAlpha(pageIndex>1 and 1 or 0.35);nextButton:SetAlpha(pageIndex<#pages and 1 or 0.35)
     if #pages>1 then navigation:Show() else navigation:Hide() end

@@ -69,6 +69,12 @@ appear when there is something to report: pocket gold, confirmed personal
 repair bills, world-PvP honorable kills, or the race to level 60. See
 [how the newspaper works](docs/NEWSPAPER-PAGES.md) for sources and coverage.
 
+Update everyone to **0.4.1**. Your configured relay character automatically
+prints one shared Monday edition after logging in and syncing. Guildmates pass
+around that exact copy; late reports go into a later issue. The newspaper does
+not need the .exe, but printing needs the publisher character online and receipt
+needs an online copy-holder. `/lootbot newspaper status` shows who publishes.
+
 ## Catch-up and reliability
 
 Old events wait two minutes before the first catch-up summary; later summaries are at least fifteen minutes apart. Each summary lists every included event, with levels first (highest first), then loot by rarity. Large backlogs are divided into later summaries instead of showing an unexplained “+more” count. A one-minute cloud timer handles delivery even after the desktop apps close. Active apps also wake the sender, so queued messages do not have to wait for the timer.

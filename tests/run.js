@@ -229,21 +229,23 @@ test('guild weekly statistics: peers, cache, deltas, headline, resets, chunking 
 
 test('statistics driver shares API data without optical traffic; round minimap marks unread weeks', () => {
   const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
-  for(const file of ['GuildStatistics','StatisticsSharing','LootBot','NewsletterPreview'])
+  for(const file of ['GuildStatistics','NewspaperPublication','NewspaperEdition','StatisticsSharing','LootBot','NewsletterPreview'])
     v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
   v.run(`
     local clock=GetServerTime()
     GetServerTime=function() return clock end
     local captures,sends=0,0
     LootBotStatisticsProbe={Capture=function() captures=captures+1; return {entries={{id=60,numericValue=captures}}} end}
-    C_ChatInfo.SendAddonMessage=function(prefix,message) assert(prefix=='LootBotNews1'); sends=sends+1 end
+    C_ChatInfo.SendAddonMessage=function(prefix,message) assert(prefix=='LootBotNews1' or prefix=='LootBotPaper1'); sends=sends+1 end
     LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LOGIN')
     LootBotStatisticsDriver.scripts.OnEvent(LootBotStatisticsDriver,'PLAYER_LOGIN')
+    SlashCmdList.LOOTBOT('relay on')
     LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
     assert(captures==1 and sends>0)
     for i=1,10 do LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1) end
     assert(captures==1 and not LootBotMarker.shown and #LootBotMarker.textures==0)
     clock=clock+1800
+    MockTime=MockTime+1800
     LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
     assert(captures==2)
     LootBotNewsletterPreview.Show()
@@ -252,14 +254,19 @@ test('statistics driver shares API data without optical traffic; round minimap m
     local icon=LootBotNewsletterMinimapButton
     assert(icon.textures[3].path=='Interface\\\\Minimap\\\\MiniMap-TrackingBorder')
     clock=clock+604800
+    MockTime=MockTime+604800
+    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
+    for i=1,100 do clock=clock+1;MockTime=MockTime+1;LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1) end
     LootBotNewsletterPreview.UpdateBadge()
     assert(icon.labels[1].shown)
     LootBotNewsletterPreview.Show()
     assert(not icon.labels[1].shown)
     LootBotNewsletterPreview.UpdateBadge()
     assert(not icon.labels[1].shown)
-    assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterHorde',1,true))
-    for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do assert(label.shown==true) end
+    assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterFront',1,true))
+    local visible=0
+    for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do if label.shown then visible=visible+1 end end
+    assert(visible>0)
     SlashCmdList.LOOTBOT('stats off')
     local before=captures
     clock=clock+1800
@@ -278,6 +285,12 @@ test('raw purse, levels and confirmed personal repair payments collect and sync 
   const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   for(const file of ['GuildStatistics','NewsletterMetrics'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
   v.run(fs.readFileSync(path.join(__dirname,'newsletter-metrics.lua'),'utf8'));v.close();
+});
+
+test('one frozen weekly issue: offline peer delivery, loss recovery, late activity, restart and integrity', () => {
+  const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  for(const file of ['GuildStatistics','NewspaperPublication','NewspaperEdition'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'newspaper-publication.lua'),'utf8'));v.close();
 });
 
 test('all-loot testing sends real low-quality drops, without changing normal level-40 policy', () => {

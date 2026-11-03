@@ -3,7 +3,7 @@ $output = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\outputs'))
 $stage = Join-Path $output ('package-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 $relay = Join-Path $stage 'LootBot'
 New-Item -ItemType Directory -Path $relay -Force | Out-Null
-foreach ($name in @('LootBot.exe','Start-LootBot.ps1','cloud-config.json','GETTING-STARTED.md','README.md','Install-Addon.cmd','settings.example.json','companion','runtime','addon','docs')) {
+foreach ($name in @('LootBot.exe','Start-LootBot.ps1','cloud-config.json','GETTING-STARTED.md','README.md','RELEASE-NOTES-0.4.1.md','Install-Addon.cmd','settings.example.json','companion','runtime','addon','docs')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $relay -Recurse
 }
 New-Item -ItemType Directory -Path (Join-Path $relay 'assets') -Force | Out-Null
