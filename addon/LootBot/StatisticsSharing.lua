@@ -2,6 +2,7 @@
 local prefix='LootBotNews1'
 local driver=CreateFrame('Frame','LootBotStatisticsDriver')
 local elapsed,nextCapture,joined=0,0,false
+local cached,cachedWeek,cachedRevision
 local engine,roster,own=nil, {}, nil
 local function canonical(name)
     if not name then return nil end
@@ -34,9 +35,17 @@ local function initialise()
         end
     })
     engine.key=key
+    cached=nil
 end
 function LootBotGuildStatistics.CurrentEdition()
-    return engine and engine.db and LootBotGuildStatistics.Edition(engine.db,GetServerTime()) or LootBotGuildStatistics.Launch(GetServerTime())
+    local now=GetServerTime()
+    if not engine or not engine.db then return LootBotGuildStatistics.Launch(now) end
+    local week=LootBotGuildStatistics.Week(now)
+    if not cached or cachedWeek~=week or cachedRevision~=(engine.db.revision or 0) then
+        cached=LootBotGuildStatistics.Edition(engine.db,now)
+        cachedWeek=week; cachedRevision=engine.db.revision or 0
+    end
+    return cached
 end
 function LootBotGuildStatistics.Sharing(enabled)
     LootBotDB=LootBotDB or {}; LootBotDB.shareStatistics=enabled

@@ -1,4 +1,4 @@
-# LootBot 0.3: shared guild relay
+# LootBot 0.4: guild relay and newspaper
 
 ## Friends
 
@@ -38,6 +38,19 @@ Normal loot messages have twelve title variants for each rarity, a Wowhead Class
 The addon normally records only loot that qualifies for that character. If item quality is briefly unavailable, it waits for item data rather than guessing and transmitting it. Existing older addon versions may still send junk through guild messages, but updated relays discard ordinary sub-blue loot before rendering it.
 
 For low-level testing, enable **All loot (testing)** in the desktop relay window, then type `/reload` in WoW. On first use, choose the installed `Interface/AddOns/LootBot` folder if asked. Restart WoW once after upgrading to this build to load the new configuration module. The switch includes grey, white and green drops from characters using that local installation, marking them internally as test events so relays accept them. Preview logs them; Live can announce them in Discord. Turn the switch off and `/reload` to restore the existing personal rarity rules and level-40 lock. It does not change other guild members' filters or shared settings.
+
+## Original Formalities Weekly
+
+Click the minimap newspaper or `/lootbot newspaper`, then use Previous and
+Next below the page. The wheel zooms; drag pans the enlarged paper. Try
+`/lootbot newspaper demo` for a clearly labelled made-up issue. Demo data
+never becomes saved or shared guild statistics.
+
+Weekly pages highlight actual reported gold balances, confirmed personal
+repair bills, world honorable kills, levels and other active counters. Quiet
+or unavailable sections are omitted. Dates belong to the weekly edition.
+The back-page weather, entertainment, letters and ads are fictional.
+See docs/NEWSPAPER-PAGES.md for coverage and data sources.
 
 ## Catch-up and reliability
 

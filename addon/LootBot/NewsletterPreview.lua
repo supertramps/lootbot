@@ -60,6 +60,10 @@ paper:SetTexCoord(0.125,0.875,0,1)
 
 local fields,fieldsByKey={},{}
 local applyZoom
+local pageFields,activeFields={},nil
+local pages,pageIndex={},1
+local previousButton,nextButton,pageLabel,navigation
+local renderPage
 for _,slot in ipairs(slots) do
     local label=content:CreateFontString(nil,'OVERLAY','GameFontNormal')
     label:SetJustifyH(slot.center and 'CENTER' or 'LEFT')
@@ -73,9 +77,21 @@ end
 
 function News.Refresh()
     News.editionId=nil
+    pages={};pageIndex=1;News.pageIndex=1;News.pageCount=1
+    for _,field in ipairs(pageFields) do field.label:Hide() end
+    activeFields=fields
+    if navigation then navigation:Hide() end
     for _,field in ipairs(fields) do field.label:Show() end
-    local edition=LootBotGuildStatistics and LootBotGuildStatistics.CurrentEdition and LootBotGuildStatistics.CurrentEdition()
+    local edition=News.previewEdition or (LootBotGuildStatistics and LootBotGuildStatistics.CurrentEdition and LootBotGuildStatistics.CurrentEdition())
     if edition then
+        if edition.launch and LootBotNewspaperEdition and not edition.pages then LootBotNewspaperEdition.Welcome(edition,GetServerTime()) end
+        if edition.pages and #edition.pages>0 then
+            pages=edition.pages
+            if not edition.demo then News.editionId=edition.launch and 'welcome' or edition.id end
+            News.pageCount=#pages
+            renderPage()
+            return edition
+        end
         if edition.launch then
             for _,field in ipairs(fields) do field.label:Hide() end
             paper:SetTexture('Interface\\AddOns\\LootBot\\NewsletterWelcome.png')
@@ -138,17 +154,20 @@ applyZoom=function(width)
     pageWidth=math.max(MIN_WIDTH,math.min(MAX_WIDTH,width))
     local scale=pageWidth/PAGE_W
     content:SetSize(pageWidth,PAGE_H*scale)
-    for _,field in ipairs(fields) do
+    for _,field in ipairs(activeFields or fields) do
         local slot,label=field.slot,field.label
         label:ClearAllPoints()
         local y=slot.y
-        if News.template==3 and (slot.key:find('Title') or slot.key:find('Body')) then y=y+50 end
+        if #pages==0 and News.template==3 and (slot.key:find('Title') or slot.key:find('Body')) then y=y+50 end
         label:SetPoint('TOPLEFT',content,'TOPLEFT',slot.x*scale,-y*scale)
         label:SetSize(slot.w*scale,slot.h*scale)
-        local size=slot.key=='masthead' and 40 or slot.key=='headline' and 44 or slot.key=='lead' and 26
+        local modern=#pages>0
+        local size=modern and slot.size or slot.key=='masthead' and 40 or slot.key=='headline' and 44 or slot.key=='lead' and 26
             or slot.key:find('Body') and 23 or slot.size
-        local strong=slot.key=='masthead' or slot.key=='headline' or slot.key:find('Title')
-        label:SetFont('Interface\\AddOns\\LootBot\\Fonts\\CrimsonText-'..(strong and 'SemiBold' or 'Regular')..'.ttf',math.max(9,size*scale))
+        local strong=modern and slot.strong or slot.key=='masthead' or slot.key=='headline' or slot.key:find('Title')
+        local font=modern and slot.role=='masthead' and 'Interface\\AddOns\\LootBot\\Fonts\\UnifrakturMaguntia.ttf'
+            or 'Interface\\AddOns\\LootBot\\Fonts\\CrimsonText-'..(strong and 'SemiBold' or 'Regular')..'.ttf'
+        label:SetFont(font,math.max(9,size*scale))
     end
     local ratio=pageWidth/oldWidth
     local viewportH=fitWidth*PAGE_H/PAGE_W
@@ -157,6 +176,57 @@ applyZoom=function(width)
     scroll:SetVerticalScroll(math.max(0,math.min(PAGE_H*scale-viewportH,
         (scroll:GetVerticalScroll()+viewportH/2)*ratio-viewportH/2)))
 end
+
+navigation=CreateFrame('Frame','LootBotNewsletterNavigation',frame)
+navigation:SetSize(fitWidth,28)
+navigation:SetPoint('TOPLEFT',frame,'BOTTOMLEFT',0,-5)
+local navBackground=navigation:CreateTexture(nil,'BACKGROUND')
+navBackground:SetAllPoints(navigation);navBackground:SetColorTexture(0.08,0.065,0.045,0.88)
+local function navButton(name,text,point,x)
+    local control=CreateFrame('Button',name,navigation)
+    control:SetSize(80,28);control:SetPoint(point,navigation,point,x,0)
+    local label=control:CreateFontString(nil,'OVERLAY','GameFontNormal')
+    label:SetPoint('CENTER');label:SetText(text);label:SetTextColor(0.92,0.85,0.69)
+    control:SetScript('OnEnter',function() label:SetTextColor(1,1,0.9) end)
+    control:SetScript('OnLeave',function() label:SetTextColor(0.92,0.85,0.69) end)
+    return control
+end
+previousButton=navButton('LootBotNewsletterPreviousPage','< Previous','LEFT',5)
+nextButton=navButton('LootBotNewsletterNextPage','Next >','RIGHT',-5)
+pageLabel=navigation:CreateFontString(nil,'OVERLAY','GameFontNormalSmall')
+pageLabel:SetPoint('CENTER');pageLabel:SetTextColor(0.92,0.85,0.69)
+renderPage=function()
+    local page=pages[pageIndex]
+    if not page then return end
+    for _,field in ipairs(fields) do field.label:Hide() end
+    for _,field in ipairs(pageFields) do field.label:Hide() end
+    activeFields={}
+    local layout=LootBotNewspaperEdition.Layouts[page.layout]
+    for i,slot in ipairs(layout) do
+        local field=pageFields[i]
+        if not field then
+            field={label=content:CreateFontString(nil,'OVERLAY','GameFontNormal')};pageFields[i]=field
+        end
+        field.slot=slot
+        field.label:SetJustifyH(slot.center and 'CENTER' or 'LEFT');field.label:SetJustifyV('TOP')
+        field.label:SetTextColor(ink[1],ink[2],ink[3]);field.label:SetText(page.fields[slot.key] or '')
+        field.label:Show();activeFields[#activeFields+1]=field
+    end
+    paper:SetTexture('Interface\\AddOns\\LootBot\\'..page.texture)
+    pageWidth=MIN_WIDTH;applyZoom(MIN_WIDTH)
+    scroll:SetHorizontalScroll(0);scroll:SetVerticalScroll(0)
+    News.pageIndex=pageIndex
+    pageLabel:SetText(pageIndex..' / '..#pages..'  -  '..page.name)
+    previousButton:SetEnabled(pageIndex>1);nextButton:SetEnabled(pageIndex<#pages)
+    previousButton:SetAlpha(pageIndex>1 and 1 or 0.35);nextButton:SetAlpha(pageIndex<#pages and 1 or 0.35)
+    if #pages>1 then navigation:Show() else navigation:Hide() end
+end
+function News.ChangePage(direction)
+    pageIndex=math.max(1,math.min(#pages,pageIndex+direction));renderPage()
+end
+previousButton:SetScript('OnClick',function() News.ChangePage(-1) end)
+nextButton:SetScript('OnClick',function() News.ChangePage(1) end)
+navigation:Hide()
 
 scroll:SetScript('OnMouseWheel',function(self,delta)
     applyZoom(pageWidth*(delta>0 and 1.15 or 1/1.15))
@@ -218,13 +288,17 @@ function News.Toggle()
     if frame:IsShown() then frame:Hide()
     else News.Show() end
 end
-function News.Show()
+function News.Show(previewEdition)
+    News.previewEdition=previewEdition
     News.Refresh()
     frame:Show(); badgeText:Hide()
     if News.editionId then
         LootBotDB=LootBotDB or {}; LootBotDB.newspaperRead=LootBotDB.newspaperRead or {}
         LootBotDB.newspaperRead[UnitGUID('player')]=News.editionId
     end
+end
+function News.ShowDemo()
+    if LootBotNewspaperEdition then News.Show(LootBotNewspaperEdition.Demo(GetServerTime())) end
 end
 applyZoom(pageWidth)
 frame:Hide()

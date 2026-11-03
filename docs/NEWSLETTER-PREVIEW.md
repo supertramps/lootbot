@@ -14,7 +14,9 @@ and Forever relay compatibility need in-game checks.
 
 After restarting the client once to load the new modules, click the round
 bronze newspaper icon by the
-minimap or type `/lootbot newspaper`. Only the paper and a small X are visible.
+minimap or type `/lootbot newspaper`. A small X closes the paper; Previous and
+Next beneath it change pages. `/lootbot newspaper demo` opens a full dummy-data
+issue without modifying or sharing real guild statistics.
 Use the mouse wheel to zoom. Drag to move the paper at its fitted size, or pan
 the page when zoomed in. Escape also closes it. A gold exclamation mark signals
 an unread welcome cover or completed weekly issue and disappears when opened.
@@ -31,9 +33,12 @@ The text placement map is `assets/newsletter/newspaper-front-page-layout.json`.
 `addon/LootBot/NewsletterPage.png` for WoW. The sample and personal edition
 layouts live in `addon/LootBot/NewsletterPreview.lua`.
 
-Three Horde backgrounds, NewsletterHorde1/2/3.png, rotate by week. A separate
-NewsletterWelcome.png is the finished first-week cover. Text uses openly
-licensed Crimson Text serif fonts. The artwork stays installed while text changes.
+Two Western-style Horde fronts, an inside section and a classifieds back page
+are bundled as NewsletterFront1/2.png, NewsletterInside.png and NewsletterBack.png.
+A separate NewsletterWelcome.png remains the first-week cover. Crimson Text
+and UnifrakturMaguntia fonts are bundled with their open licenses. Actual figures
+are typeset around fictional notices and engravings. The artwork stays installed
+while text changes. See NEWSPAPER-PAGES.md for dates, sections and data coverage.
 StatisticsSharing.lua captures API readings at login and every 30 minutes and
 shares them through guild addon messages, independently of the optical relay.
 `/lootbot stats off` pauses sharing; `stats on` resumes it. Multiplayer delivery

@@ -149,6 +149,11 @@ for _,event in ipairs({'PLAYER_LOGIN','CHAT_MSG_LOOT','PLAYER_LEVEL_UP','CHAT_MS
 SLASH_LOOTBOT1='/lootbot'
 SlashCmdList.LOOTBOT=function(command)
     command=(command or ''):lower():match('^%s*(.-)%s*$')
+    if command=='newspaper demo' or command=='news demo' then
+        if LootBotNewsletterPreview and LootBotNewsletterPreview.ShowDemo then LootBotNewsletterPreview.ShowDemo()
+        else say('Restart WoW once to load the newspaper modules.') end
+        return
+    end
     if command=='stats on' or command=='stats off' then
         if LootBotGuildStatistics and LootBotGuildStatistics.Sharing then
             LootBotGuildStatistics.Sharing(command=='stats on')
@@ -191,7 +196,7 @@ SlashCmdList.LOOTBOT=function(command)
         if db.epicLocked then say('Blue-drop announcements end at level 40. Your filter is Epic and above.')
         else db.personalQuality=RARE; say('Personal loot filter: Rare and above.') end
     elseif command=='version' then
-        local version,build,_,interface=GetBuildInfo(); say('LootBot 0.3; client '..version..', build '..build..', interface '..interface)
+        local version,build,_,interface=GetBuildInfo(); say('LootBot 0.4.0; client '..version..', build '..build..', interface '..interface)
     else
         say('relay on/off | sync | test | test level | test backlog | newspaper | stats | filter [rare|epic] | on/off.')
         say('Mode: '..(db.relay and 'relay' or 'member')..'; saved own events: '..#db.own..'; synced events: '..#db.inbox)

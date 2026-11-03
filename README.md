@@ -1,4 +1,4 @@
-# LootBot 0.3: shared guild relay
+# LootBot 0.4: guild relay and newspaper
 
 <img src="assets/peon.gif" alt="Classic Warcraft III Orc Peon portrait" align="right" width="140">
 
@@ -55,6 +55,19 @@ Open **Tools**. WoW can be completely closed; the relay capture does not need to
 Normal loot messages have twelve title variants for each rarity, a Wowhead Classic link, and an item icon when Wowhead provides one. They omit item-ID fields and detection footers. Wowhead outages do not stop ordinary loot delivery; an uncached manual item test needs a successful lookup. Catch-up summaries show a compact selection of items rather than a separate icon for every event.
 
 The addon records only loot that qualifies for that character. If item quality is briefly unavailable, it waits for item data rather than guessing and transmitting it. Existing older addon versions may still send junk through guild messages, but updated relays discard sub-blue loot before rendering it.
+
+## Original Formalities Weekly
+
+Click the minimap newspaper or type `/lootbot newspaper`. Use **Previous** and
+**Next** below the paper; the mouse wheel zooms and dragging pans the page.
+Try `/lootbot newspaper demo` for a full issue with clearly labelled made-up
+figures. It never writes fake results to the guild's statistics.
+
+The dated paper mixes real guild highlights with Horde broadsheet artwork,
+fictional axe ads, local notices, weather and evening listings. Inside sections
+appear when there is something to report: pocket gold, confirmed personal
+repair bills, world-PvP honorable kills, or the race to level 60. See
+[how the newspaper works](docs/NEWSPAPER-PAGES.md) for sources and coverage.
 
 ## Catch-up and reliability
 

@@ -18,7 +18,8 @@ Weeks begin Monday at 00:00 UTC. A new week's baseline is the last known
 reading, even from an earlier week. The latest reading is the end. Any missed
 activity counts in the week it is discovered; this is a casual guild paper,
 not an exact calendar audit. The paper shows the previous
-week if available, otherwise the most recent retained week. During the first
+week's readings. If none are available after collection has begun, Monday
+still gets a new quiet front/back issue without reusing older numbers. During the first
 week a welcome front page invites members back for Monday's first issue.
 Figures are recorded changes, not exact full-week activity. First-ever readings
 establish a baseline without counting lifetime totals. Missing values are not
@@ -36,15 +37,20 @@ A standout player and number becomes the headline. A newly improved biggest
 hit or heal can take the headline; its absolute record is shown, not a sum or
 weekly difference. Guild rankings are per character, not per human account.
 
-Three restrained Horde art templates rotate by week: War Camp, Totem Post, and
-Ashen Dispatch. A separate finished welcome cover has no stat boxes. Text changes
-in game without downloading new art. The round
+The multi-page paper uses two rotating Western broadsheet fronts, an inside
+section plate, and a busy classifieds back page. A separate first-week welcome
+cover is retained. Previous/Next buttons turn pages; the wheel zooms. Real
+figures and dates are typeset over the art. Fictional ads and local notices
+fill the surrounding newspaper. See NEWSPAPER-PAGES.md for the extended metrics,
+relevance rules and `/lootbot newspaper demo`. Text changes in game without
+downloading new art. The round
 minimap button uses Blizzard's circular portrait and bronze tracking rim.
 An exclamation mark signals the unread welcome cover or a completed week,
 with read status saved per character.
 Click to read; mouse wheel zooms, drag pans/moves, X or Escape closes.
 
-`/lootbot stats off` pauses collection/sharing; `stats on` resumes it. Already
+`/lootbot stats off` pauses guild snapshots/sharing; `stats on` resumes it. The
+local confirmed-repair ledger remains on the character. Already
 shared readings remain cached by peers. `/lootbot stats` is still a manual
 local API inspection. `/lootbot newspaper` opens the latest available edition.
 The sample issue is only a labelled fallback when there is no readable data.

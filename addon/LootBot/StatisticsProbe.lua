@@ -14,6 +14,7 @@ function LootBotStatisticsProbe.Capture()
     snapshot.version=version; snapshot.build=build; snapshot.interface=interface
     LootBotDB=LootBotDB or {}
     LootBotDB.statisticsProbe=snapshot
+    if LootBotNewsletterMetrics then snapshot.profile=LootBotNewsletterMetrics.Profile() end
     for _,name in ipairs({'GetStatisticsCategoryList','GetCategoryNumAchievements','GetAchievementInfo','GetStatistic'}) do
         if type(_G[name])~='function' then snapshot.error='Missing API: '..name; return snapshot end
     end
@@ -21,8 +22,18 @@ function LootBotStatisticsProbe.Capture()
     if not ok or not readable(categories) or type(categories)~='table' then
         snapshot.error='Statistics categories are not readable.'; return snapshot
     end
+    -- The beta may return a sparse category list. Match Blizzard's ordered
+    -- numeric-key enumeration instead of stopping at the first missing index.
+    local ordered={}
+    for index,category in pairs(categories) do
+        if readable(index) and type(index)=='number' and readable(category) and type(category)=='number' then
+            ordered[#ordered+1]={index=index,category=category}
+        end
+    end
+    table.sort(ordered,function(a,b) return a.index<b.index end)
     local seen={}
-    for _,category in ipairs(categories) do
+    for _,row in ipairs(ordered) do
+        local category=row.category
         if readable(category) and type(category)=='number' then
             local categoryName
             if type(GetCategoryInfo)=='function' then

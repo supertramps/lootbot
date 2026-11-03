@@ -5,6 +5,7 @@ const {lua,lauxlib,lualib,to_luastring}=require('fengari');
 const L=lauxlib.luaL_newstate(); lualib.luaL_openlibs(L);
 function run(source){lua.lua_settop(L,0); if(lauxlib.luaL_dostring(L,to_luastring(source))!==lua.LUA_OK)throw Error(lua.lua_tojsstring(L,-1));}
 run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/GuildStatistics.lua'),'utf8'));
+run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/NewspaperEdition.lua'),'utf8'));
 const out=process.argv[2]; fs.mkdirSync(out,{recursive:true});
 for(const mode of ['welcome','weekly']){
   run(mode==='welcome'?'return LootBotGuildStatistics.Launch(1780000000)':`

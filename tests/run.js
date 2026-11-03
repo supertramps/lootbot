@@ -186,6 +186,11 @@ test('statistics probe preserves unknown and protected values without sending da
     assert(snapshot.entries[3].value=='1234' and snapshot.entries[3].numericValue==1234)
     assert(snapshot.entries[4].status=='unknown' and snapshot.entries[4].value==nil)
     assert(LootBotDB.statisticsProbe==snapshot)
+    GetStatisticsCategoryList=function() return {[0]=10,[3]=20,[9]=30} end
+    GetCategoryNumAchievements=function() return 1 end
+    GetStatistic=function(category,index) return '5',false,tostring(category+index) end
+    snapshot=LootBotStatisticsProbe.Capture()
+    assert(#snapshot.entries==3 and snapshot.entries[3].id==31,'sparse beta categories must all be read')
     GetStatistic=nil
     snapshot=LootBotStatisticsProbe.Capture()
     assert(snapshot.error=='Missing API: GetStatistic')
@@ -261,6 +266,18 @@ test('statistics driver shares API data without optical traffic; round minimap m
     LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
     assert(captures==before and LootBotDB.shareStatistics==false)
   `); v.close();
+});
+
+test('newspaper pages show relevant guild stats, stable dates and working navigation', () => {
+  const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  for(const file of ['GuildStatistics','NewspaperEdition','LootBot','NewsletterPreview'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'newspaper-pages.lua'),'utf8'));v.close();
+});
+
+test('raw purse, levels and confirmed personal repair payments collect and sync safely', () => {
+  const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  for(const file of ['GuildStatistics','NewsletterMetrics'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'newsletter-metrics.lua'),'utf8'));v.close();
 });
 
 test('all-loot testing sends real low-quality drops, without changing normal level-40 policy', () => {

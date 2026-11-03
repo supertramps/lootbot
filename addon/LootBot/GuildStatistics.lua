@@ -8,6 +8,7 @@ local function cleanName(v) return type(v)=='string' and #v<=100 and not v:find(
 function G.New(db,api)
     db.weeks=db.weeks or {}
     db.checkpoints=db.checkpoints or {}
+    db.startedWeek=db.startedWeek or G.Week(api.now())
     local function remember(name,last,values)
         local checkpoint=db.checkpoints[name]
         if not checkpoint then
@@ -25,7 +26,8 @@ function G.New(db,api)
         end
     end
     -- Upgrade existing saved weeks before pruning; checkpoints survive long breaks.
-    for _,records in pairs(db.weeks) do
+    for week,records in pairs(db.weeks) do
+        if type(week)=='number' and week<db.startedWeek then db.startedWeek=week end
         for name,record in pairs(records) do remember(name,record.last,record.finish) end
     end
     local self={db=db,api=api,queue={},pending={},sequence=0}
@@ -41,6 +43,7 @@ function G.New(db,api)
         local count=0
         for id,v in pairs(start) do count=count+1; if not valid(v) or not valid(finish[id]) or not valid(id) or id%1~=0 then return false end end
         if count>500 then return false end
+        if not db.startedWeek or week<db.startedWeek then db.startedWeek=week end
         db.weeks[week]=db.weeks[week] or {}
         local records=db.weeks[week]
         local old=records[name]
@@ -48,12 +51,15 @@ function G.New(db,api)
             local n=0; for _ in pairs(records) do n=n+1 end
             if n>=100 then return false end
             remember(name,last,finish)
+            db.revision=(db.revision or 0)+1
             records[name]={first=first,last=last,start=start,finish=finish}; return true
         end
         remember(name,last,finish)
-        if first<old.first then old.first=first; old.start=start end
-        if last>old.last then old.last=last; old.finish=finish; return true end
-        return false
+        local changed=false
+        if first<old.first then old.first=first; old.start=start; changed=true end
+        if last>old.last then old.last=last; old.finish=finish; changed=true end
+        if changed then db.revision=(db.revision or 0)+1 end
+        return changed
     end
     function self:Queue(name,week,record,target)
         local ids={}; for id in pairs(record.start) do if record.finish[id] then ids[#ids+1]=id end end
@@ -72,12 +78,16 @@ function G.New(db,api)
         for i=1,total do self.queue[#self.queue+1]={message=header..i..';'..total..';'..payload:sub((i-1)*size+1,i*size),target=target} end
     end
     function self:Capture(snapshot)
-        if not snapshot or snapshot.error or not cleanName(api.player()) then return end
+        if not snapshot or (snapshot.error and not snapshot.profile) or not cleanName(api.player()) then return end
         self:Prune()
         local now=api.now(); local week=G.Week(now); local name=api.player()
         local values={}
         for _,entry in ipairs(snapshot.entries or {}) do
             if not entry.hidden and valid(entry.id) and valid(entry.numericValue) then values[entry.id]=entry.numericValue end
+        end
+        for key,id in pairs({money=900001,level=900002,repairs=900003}) do
+            local value=snapshot.profile and snapshot.profile[key]
+            if valid(value) then values[id]=value end
         end
         local records=db.weeks[week] or {}; local old=records[name]
         -- Carry the last known value across weeks. Catch-up belongs to the
@@ -177,14 +187,15 @@ function G.Edition(db,now)
     local records=db.weeks and db.weeks[week]
     local partial=false
     if not records or not next(records) then
-        for earlier=current-2,current-3,-1 do
-            local previous=db.weeks and db.weeks[earlier]
-            if previous and next(previous) then week=earlier; records=previous; break end
+        local started=db.startedWeek
+        for earlier,previous in pairs(db.weeks or {}) do
+            if next(previous) and (not started or earlier<started) then started=earlier end
         end
+        if not started or started>=current then return G.Launch(now) end
+        -- Monday always gets a fresh issue, even if nobody supplied readings.
+        -- Do not relabel an older week's figures as this week's news.
+        records={}
     end
-    if not records or not next(records) then week=current; records=db.weeks and db.weeks[week]; partial=true end
-    if not records or not next(records) then return G.Launch(now) end
-    if partial then return G.Launch(now) end
     local result={id=week,template=week%3+1,partial=partial,fields={},metrics={}}
     local participants=0; for _ in pairs(records) do participants=participants+1 end
     local field=result.fields
@@ -223,6 +234,7 @@ function G.Edition(db,now)
         notes[#notes+1]=chosen[3]
     end
     field.headline=notes[1]
+    result.spotlight=star
     local phrases={
         [60]='%s died %s times. Still playing.',[114]='%s fell to their death %s times.',
         [115]='%s burned to death %s times.',[112]='%s drowned %s times.',[594]='Hogger killed %s %s times.',
@@ -243,6 +255,7 @@ function G.Edition(db,now)
         end
     end
     if recordStar then
+        result.spotlight={id=recordStar.id,name=recordStar.name:match('^[^-]+') or recordStar.name,value=recordStar.value}
         local name=recordStar.name:match('^[^-]+') or recordStar.name
         field.headline=name..' landed a '..string.format('%.0f',recordStar.value)..(recordStar.id==193 and ' hit.' or ' heal.')
         notes[#notes+1]=name..' beat their previous '..(recordStar.id==193 and 'biggest hit' or 'biggest heal')..' record.'
@@ -251,5 +264,6 @@ function G.Edition(db,now)
         'Changes since the last reading. Catch-up counts in the week you return.',
         partial and 'First week in progress. New edition Monday (UTC).' or 'Last week\'s activity. New edition Monday (UTC).'},'\n\n')
     if recordStar then field.lead=notes[#notes]..'\n\n'..field.lead end
+    if LootBotNewspaperEdition then LootBotNewspaperEdition.Build(result,records,db,week,now) end
     return result
 end

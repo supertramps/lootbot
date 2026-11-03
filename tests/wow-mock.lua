@@ -41,6 +41,7 @@ function CreateFrame(_, name)
     function frame:Hide() self.shown=false end
     function frame:IsShown() return self.shown end
     function frame:SetText(value) self.text=value end
+    function frame:SetEnabled(value) self.enabled=value end
     function frame:SetScrollChild(child) self.scrollChild=child end
     function frame:SetHorizontalScroll(value) self.horizontalScroll=value end
     function frame:GetHorizontalScroll() return self.horizontalScroll or 0 end
