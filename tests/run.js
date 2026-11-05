@@ -136,6 +136,38 @@ test('addon lifecycle, self-loot event and optical rendering work together', () 
   v.run(`SlashCmdList.LOOTBOT('off'); assert(not LootBotMarker.shown); SlashCmdList.LOOTBOT('on'); for i=1,10 do MockTime=100+i*20; LootBotDriver.scripts.OnUpdate(LootBotDriver, 1) end; assert(not LootBotMarker.shown)`);
   v.close();
 });
+test('relay requests a guildmate milestone using their original Forever whisper name', () => {
+  const v = vm();
+  v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/LootBot.lua'), 'utf8'));
+  v.run(`
+    function GetGuildRosterInfo(i) return i==1 and 'Alex-TestRealm' or 'Friend Name-TestRealm' end
+    local driver=LootBotDriver
+    local function emit(...) driver.scripts.OnEvent(driver,...) end
+    local function tick(t) MockTime=t; driver.scripts.OnUpdate(driver,1) end
+    local whispers={}
+    C_ChatInfo.SendAddonMessage=function(_,message,channel,target)
+        if channel=='WHISPER' then
+            assert(target=='Friend Name')
+            whispers[#whispers+1]=message
+        end
+    end
+    emit('PLAYER_LOGIN')
+    SlashCmdList.LOOTBOT('relay on')
+    tick(1)
+    emit('CHAT_MSG_ADDON','LootBot2','O','WHISPER','Friend Name')
+    tick(2)
+    assert(whispers[1]=='Q\\t')
+    local event={id='L-Player-123-20',kind='level',level=20,timestamp=GetServerTime(),
+        itemId=0,quality=0,quantity=0,test=false,itemName=''}
+    emit('CHAT_MSG_ADDON','LootBot2',LootBotProtocol.wire(event),'WHISPER','Friend Name')
+    tick(3)
+    assert(whispers[2]=='A\\t'..event.id)
+    return ReadMarker()
+  `);
+  assert.equal(decodePacket(v.bytes(), NOW)?.level, 20);
+  v.close();
+});
 test('newspaper preview opens from minimap and slash command without creating loot events', () => {
   const v = vm();
   v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));

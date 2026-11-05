@@ -4,6 +4,7 @@ local marker = CreateFrame('Frame', 'LootBotMarker', UIParent)
 local driver = CreateFrame('Frame', 'LootBotDriver', UIParent)
 marker:SetFrameStrata('TOOLTIP'); marker:SetFrameLevel(100); marker:EnableMouse(false)
 local pixels, templates, members = {}, {}, {}
+local whisperNames = {}
 local relay, db, elapsed, lastPacket, nextRoster, pendingLoot = nil, nil, 0, nil, 0, {}
 function LootBotRelay.Live() return relay end
 local RARE, EPIC, POLICY_VERSION = 3, 4, 1
@@ -44,7 +45,7 @@ local function roster()
     members={}
     for i=1,GetNumGuildMembers() do
         local name=GetGuildRosterInfo(i)
-        if name then members[canonical(name)]=true end
+        if name then members[canonical(name)]=name end
     end
 end
 local function requestRoster()
@@ -105,9 +106,11 @@ driver:SetScript('OnEvent',function(_,event,...)
         lockEpic(UnitLevel('player'))
         db.enabled=db.enabled~=false
         relay=R.new(db,{guid=guid,player=canonical(UnitName('player')),time=GetTime,now=GetServerTime,
-            guild=guild,member=function(name) return members[name]==true end,draw=draw,
+            guild=guild,member=function(name) return members[name]~=nil end,draw=draw,
             send=function(message,target)
-                C_ChatInfo.SendAddonMessage('LootBot2',message,target and 'WHISPER' or 'GUILD',target)
+                local recipient = target and members[target] and (whisperNames[target] or members[target])
+                if target and not recipient then return end
+                C_ChatInfo.SendAddonMessage('LootBot2',message,target and 'WHISPER' or 'GUILD',recipient)
             end})
         -- Clean records from older versions before relay mode can replay them.
         relay:purgeOwnBelow(effectiveQuality())
@@ -130,7 +133,13 @@ driver:SetScript('OnEvent',function(_,event,...)
         elseif db.enabled and event=='CHAT_MSG_LOOT' then loot(...)
         elseif db.enabled and event=='CHAT_MSG_ADDON' then
             local prefix,message,channel,sender=...
-            if prefix=='LootBot2' then relay:receive(message,channel,canonical(sender)) end
+            if prefix=='LootBot2' then
+                local key=canonical(sender)
+                -- The comparison key strips spaces and may add a realm. Use the
+                -- name supplied by WoW for replies, including Forever surnames.
+                if members[key] then whisperNames[key]=sender end
+                relay:receive(message,channel,key)
+            end
         end
     end
 end)
