@@ -5,6 +5,7 @@ local driver = CreateFrame('Frame', 'LootBotDriver', UIParent)
 marker:SetFrameStrata('TOOLTIP'); marker:SetFrameLevel(100); marker:EnableMouse(false)
 local pixels, templates, members = {}, {}, {}
 local whisperNames = {}
+local diagnostics = { sent=0, received=0, rejected=0, peers={} }
 local relay, db, elapsed, lastPacket, nextRoster, pendingLoot = nil, nil, 0, nil, 0, {}
 function LootBotRelay.Live() return relay end
 local RARE, EPIC, POLICY_VERSION = 3, 4, 1
@@ -105,19 +106,25 @@ driver:SetScript('OnEvent',function(_,event,...)
         db.personalQuality=(db.personalQuality==EPIC) and EPIC or RARE
         lockEpic(UnitLevel('player'))
         db.enabled=db.enabled~=false
-        relay=R.new(db,{guid=guid,player=canonical(UnitName('player')),time=GetTime,now=GetServerTime,
+        relay=R.new(db,{guid=guid,player=canonical(P.localPlayerName()),time=GetTime,now=GetServerTime,
             guild=guild,member=function(name) return members[name]~=nil end,draw=draw,
             send=function(message,target)
                 local recipient = target and members[target] and (whisperNames[target] or members[target])
-                if target and not recipient then return end
-                C_ChatInfo.SendAddonMessage('LootBot2',message,target and 'WHISPER' or 'GUILD',recipient)
+                if target and not recipient then
+                    diagnostics.lastSend='No roster address for '..target
+                    return
+                end
+                local channel=target and 'WHISPER' or 'GUILD'
+                local result=C_ChatInfo.SendAddonMessage('LootBot2',message,channel,recipient)
+                diagnostics.sent=diagnostics.sent+1
+                diagnostics.lastSend=channel..' '..(recipient or 'guild')..' result '..tostring(result)
             end})
         -- Clean records from older versions before relay mode can replay them.
         relay:purgeOwnBelow(effectiveQuality())
         for _,key in ipairs({'LOOT_ITEM_SELF_MULTIPLE','LOOT_ITEM_PUSHED_SELF_MULTIPLE','LOOT_ITEM_SELF','LOOT_ITEM_PUSHED_SELF'}) do
             if type(_G[key])=='string' then templates[#templates+1]=_G[key] end
         end
-        C_ChatInfo.RegisterAddonMessagePrefix('LootBot2')
+        diagnostics.registration=C_ChatInfo.RegisterAddonMessagePrefix('LootBot2')
         roster(); requestRoster(); layout()
         db.lastLevel=UnitLevel('player')
         if db.relay then relay:syncOptical() end
@@ -135,6 +142,16 @@ driver:SetScript('OnEvent',function(_,event,...)
             local prefix,message,channel,sender=...
             if prefix=='LootBot2' then
                 local key=canonical(sender)
+                -- Forever can format roster and chat names differently. Ask
+                -- WoW to verify the original name before trusting a new alias.
+                if not members[key] and C_GuildInfo and C_GuildInfo.MemberExistsByName
+                    and C_GuildInfo.MemberExistsByName(sender)==true then
+                    members[key]=sender
+                end
+                diagnostics.received=diagnostics.received+1
+                diagnostics.lastReceive=channel..' '..sender..' roster='..tostring(members[key]~=nil)
+                if not members[key] then diagnostics.rejected=diagnostics.rejected+1 end
+                if members[key] then diagnostics.peers[key]=true end
                 -- The comparison key strips spaces and may add a realm. Use the
                 -- name supplied by WoW for replies, including Forever surnames.
                 if members[key] then whisperNames[key]=sender end
@@ -184,7 +201,17 @@ SlashCmdList.LOOTBOT=function(command)
         return
     end
     if not relay then return end
-    if command=='relay on' then db.enabled=true; relay:setRelay(true); say('Relay enabled. Other members have no marker.')
+    if command=='diagnose' then
+        local count, peers=0,0
+        for _ in pairs(members) do count=count+1 end
+        for _ in pairs(diagnostics.peers) do peers=peers+1 end
+        say('Diagnostics 1; enabled='..tostring(db.enabled)..'; relay='..tostring(db.relay)..'; guild='..tostring(guild()))
+        say('Roster '..count..'; peers heard '..peers..'; prefix result '..tostring(diagnostics.registration))
+        say('Sent '..diagnostics.sent..'; received '..diagnostics.received..'; roster rejected '..diagnostics.rejected)
+        say('Last send: '..(diagnostics.lastSend or 'none'))
+        say('Last receive: '..(diagnostics.lastReceive or 'none'))
+        say('Own events '..#db.own..'; received events '..#db.inbox)
+    elseif command=='relay on' then db.enabled=true; relay:setRelay(true); say('Relay enabled. Other members have no marker.')
     elseif command=='relay off' then relay:setRelay(false); say('Member mode enabled; marker hidden.')
     elseif command=='sync' then relay:syncOptical(); relay.lastHello=-100; say('Saved records queued for replay; the shared service prevents duplicate posts.')
     elseif command=='test' then

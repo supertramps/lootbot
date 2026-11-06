@@ -45,7 +45,18 @@ end
 function P.canonical(name, realm)
     if not name or name == '' then return '' end
     if not name:find('-', 1, true) then name = name .. '-' .. realm end
-    return (name:gsub('%s', ''))
+    local character, server = name:match('^(.-)%-(.+)$')
+    if not character then return name end
+    return character .. '-' .. server:gsub('%s', '')
+end
+
+function P.localPlayerName()
+    local first, surname = UnitName('player')
+    if C_PlayerInfo and C_PlayerInfo.ShouldDisplaySurname and C_PlayerInfo.ShouldDisplaySurname()
+        and type(surname)=='string' and surname~='' then
+        return first .. ' ' .. surname
+    end
+    return first
 end
 
 local function escapeField(value)

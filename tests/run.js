@@ -141,7 +141,8 @@ test('relay requests a guildmate milestone using their original Forever whisper 
   v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));
   v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/LootBot.lua'), 'utf8'));
   v.run(`
-    function GetGuildRosterInfo(i) return i==1 and 'Alex-TestRealm' or 'Friend Name-TestRealm' end
+    function GetGuildRosterInfo(i) return i==1 and 'Alex-TestRealm' or 'Friend-TestRealm' end
+    C_GuildInfo.MemberExistsByName=function(name) return name=='Friend Name' end
     local driver=LootBotDriver
     local function emit(...) driver.scripts.OnEvent(driver,...) end
     local function tick(t) MockTime=t; driver.scripts.OnUpdate(driver,1) end
@@ -166,6 +167,25 @@ test('relay requests a guildmate milestone using their original Forever whisper 
     return ReadMarker()
   `);
   assert.equal(decodePacket(v.bytes(), NOW)?.level, 20);
+  v.close();
+});
+test('Forever announcements preserve first name and surname through the optical packet', () => {
+  const v = vm();
+  v.run(fs.readFileSync(path.join(__dirname, 'wow-mock.lua'), 'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/LootBot.lua'), 'utf8'));
+  v.run(`
+    UnitName=function() return 'Prívate','Property' end
+    C_PlayerInfo={ShouldDisplaySurname=function() return true end}
+    LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LOGIN')
+    SlashCmdList.LOOTBOT('relay on')
+    SlashCmdList.LOOTBOT('test')
+    LootBotDriver.scripts.OnUpdate(LootBotDriver,1)
+    assert(LootBotProtocol.canonical('Prívate Property','Test Realm')=='Prívate Property-TestRealm')
+    C_PlayerInfo.ShouldDisplaySurname=function() return false end
+    assert(LootBotProtocol.localPlayerName()=='Prívate')
+    return ReadMarker()
+  `);
+  assert.equal(decodePacket(v.bytes(), NOW).player, 'Prívate Property-TestRealm');
   v.close();
 });
 test('newspaper preview opens from minimap and slash command without creating loot events', () => {
