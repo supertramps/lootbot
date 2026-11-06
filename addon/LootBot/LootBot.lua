@@ -115,7 +115,7 @@ driver:SetScript('OnEvent',function(_,event,...)
                     return
                 end
                 local channel=target and 'WHISPER' or 'GUILD'
-                local result=C_ChatInfo.SendAddonMessage('LootBot2',message,channel,recipient)
+                local result=P.sendAddon('LootBot2',message,channel,recipient)
                 diagnostics.sent=diagnostics.sent+1
                 diagnostics.lastSend=channel..' '..(recipient or 'guild')..' result '..tostring(result)
             end})
@@ -238,7 +238,7 @@ SlashCmdList.LOOTBOT=function(command)
         if db.epicLocked then say('Blue-drop announcements end at level 40. Your filter is Epic and above.')
         else db.personalQuality=RARE; say('Personal loot filter: Rare and above.') end
     elseif command=='version' then
-        local version,build,_,interface=GetBuildInfo(); say('LootBot 0.4.1; client '..version..', build '..build..', interface '..interface)
+        local version,build,_,interface=GetBuildInfo(); say('LootBot 0.4.2; client '..version..', build '..build..', interface '..interface)
     else
         say('relay on/off | sync | test | test level | test backlog | newspaper | stats | filter [rare|epic] | on/off.')
         say('Mode: '..(db.relay and 'relay' or 'member')..'; saved own events: '..#db.own..'; synced events: '..#db.inbox)

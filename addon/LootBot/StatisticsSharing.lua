@@ -32,7 +32,7 @@ local function initialise()
         member=function(name) return roster[canonical(name)]==true end,
         send=function(message,target)
             if LootBotDB.shareStatistics==false or not IsInGuild() then return end
-            C_ChatInfo.SendAddonMessage(prefix,message,target and 'WHISPER' or 'GUILD',target)
+            LootBotProtocol.sendAddon(prefix,message,target and 'WHISPER' or 'GUILD',target)
         end
     })
     engine.key=key
@@ -57,7 +57,7 @@ local function initialise()
                 return LootBotGuildStatistics.PublicationDraft(engine.db,GetServerTime(),printed,function(name)return roster[canonical(name)]==true end)
             end,
             send=function(message,target)
-                if IsInGuild() then C_ChatInfo.SendAddonMessage(paperPrefix,message,target and 'WHISPER' or 'GUILD',target) end
+                if IsInGuild() then LootBotProtocol.sendAddon(paperPrefix,message,target and 'WHISPER' or 'GUILD',target) end
             end,
         })
     end

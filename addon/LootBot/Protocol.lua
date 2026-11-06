@@ -1,6 +1,40 @@
 -- No networking, disk writes, input automation, or external libraries.
 LootBotProtocol = {}
 local P = LootBotProtocol
+local pendingWhispers, blockedWhispers = {}, {}
+local errorFilterInstalled = false
+
+function P.sendAddon(prefix, message, channel, target)
+    if channel~='WHISPER' then return C_ChatInfo.SendAddonMessage(prefix,message,channel,target) end
+    if type(target)~='string' or target=='' then return end
+    if C_PlayerInfo and C_PlayerInfo.ShouldDisplaySurname and C_PlayerInfo.ShouldDisplaySurname() then
+        target=target:match('^([^-]+)') or target
+    end
+    local now=GetTime()
+    for name,expires in pairs(pendingWhispers) do
+        if expires<now then pendingWhispers[name]=nil end
+    end
+    for name,expires in pairs(blockedWhispers) do
+        if expires<now then blockedWhispers[name]=nil end
+    end
+    if blockedWhispers[target] then return end
+    if not errorFilterInstalled then
+        local addFilter=ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter or ChatFrame_AddMessageEventFilter
+        if not addFilter or type(ERR_CHAT_PLAYER_NOT_FOUND_S)~='string' then return end
+        local pattern=P.templatePattern(ERR_CHAT_PLAYER_NOT_FOUND_S)
+        addFilter('CHAT_MSG_SYSTEM',function(_,_,text)
+            if type(text)~='string' or (issecretvalue and issecretvalue(text)) then return end
+            local name=text:match(pattern)
+            if name and pendingWhispers[name] and pendingWhispers[name]>=GetTime() then
+                blockedWhispers[name]=GetTime()+300
+                return true
+            end
+        end)
+        errorFilterInstalled=true
+    end
+    pendingWhispers[target]=now+30
+    return C_ChatInfo.SendAddonMessage(prefix,message,channel,target)
+end
 
 function P.adler32(data)
     local a, b = 1, 0

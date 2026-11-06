@@ -1,4 +1,6 @@
 MockTime = 1
+ERR_CHAT_PLAYER_NOT_FOUND_S='No player named %s is currently playing.'
+function ChatFrame_AddMessageEventFilter() end
 MockHeight = 1440
 MockScale = 0.8
 UIParent = { GetEffectiveScale = function() return MockScale end, GetHeight=function() return 768 end, GetWidth=function() return 1365 end }

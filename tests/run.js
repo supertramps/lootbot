@@ -21,6 +21,35 @@ test('UTF-8 roundtrip and checksum rejects corruption', () => {
     assert.equal(decodePacket(bad, NOW), null, `Corrupted byte ${i} accepted`);
   }
 });
+
+test('addon whisper failures are narrowly hidden and retries pause', () => {
+  const v=vm();
+  v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  v.run(`
+    local filter, sent, recipient
+    sent=0
+    ChatFrame_AddMessageEventFilter=function(event,fn) assert(event=='CHAT_MSG_SYSTEM'); filter=fn end
+    C_PlayerInfo={ShouldDisplaySurname=function() return true end}
+    C_ChatInfo.SendAddonMessage=function(_,_,_,target) sent=sent+1; recipient=target; return 0 end
+    local P=LootBotProtocol
+    P.sendAddon('LootBotNews1','hello','WHISPER','Prívate Property-CAMWOWEU4Realm8PvP')
+    assert(recipient=='Prívate Property' and sent==1)
+    assert(filter(nil,nil,'No player named Prívate Property is currently playing.')==true)
+    assert(not filter(nil,nil,'No player named Someone Else is currently playing.'))
+    assert(not filter(nil,nil,'You are now saved to this instance.'))
+    P.sendAddon('LootBotPaper1','hello','WHISPER','Prívate Property-CAMWOWEU4Realm8PvP')
+    assert(sent==1)
+    MockTime=32
+    assert(not filter(nil,nil,'No player named Prívate Property is currently playing.'))
+    MockTime=302
+    P.sendAddon('LootBot2','hello','WHISPER','Prívate Property-CAMWOWEU4Realm8PvP')
+    assert(sent==2)
+    C_PlayerInfo.ShouldDisplaySurname=function() return false end
+    P.sendAddon('LootBot2','hello','WHISPER','Alex-TestRealm')
+    assert(recipient=='Alex-TestRealm')
+  `);
+  v.close();
+});
 test('invalid fields, old events and oversized frames are rejected', () => {
   assert.equal(decodePacket(encodePacket(values), NOW + 31*86400), null);
   assert.equal(decodePacket(Buffer.alloc(200), NOW), null);
