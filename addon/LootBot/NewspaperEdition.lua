@@ -78,7 +78,7 @@ local fun={
 }
 local function article(metric,list)
     local top=list[1]
-    return {title=metric[2],value=string.format('%.0f',top.value),summary=board(list)..'\n\n'..metric[3]..' i detta nummer.',body=top.name..' noterade '..string.format('%.0f',top.value)..' '..metric[3]..'.\n\n'..board(list)..'\n\nRapporterad ökning sedan förra avläsningen. Den som återvänder sent kan ha med sig förra veckans bravader.'}
+    return {title=metric[2],value=string.format('%.0f',top.value),summary=board(list)..'\n\n'..metric[3]..' i detta nummer.',body=top.name..' noterade '..string.format('%.0f',top.value)..' '..metric[3]..'.\n\n'..board(list)}
 end
 function N.Build(edition,records,db,week,now)
     edition.publishedAt=MONDAY+(week+1)*WEEK
@@ -106,14 +106,14 @@ function N.Build(edition,records,db,week,now)
     local brief={}
     if pvp[1] then brief[#brief+1]='STRID UTE I VÄRLDEN\n'..pvp[1].name..' - '..pvp[1].value..' ärofyllda segrar' end
     if wealth then brief[#brief+1]='GÔTT OM GULD\n'..gold[1].name..' - '..N.Money(gold[1].value) end
-    if race then brief[#brief+1]='PÅ VÄG UPP\n'..levels[1].name..' - nivå '..levels[1].value end
+    if race then brief[#brief+1]='GUILDENS SVETTIGASTE\n'..levels[1].name..' - nivå '..levels[1].value end
     local participants=0; for _ in pairs(records) do participants=participants+1 end
     if #brief==0 then brief[1]=participants..' rapporterande karaktärer.\n\nVi trycker det som hänt. Stilla räknare får vila.' end
     local headlines={
  [60]='%s dog %s gånger. På det igen.',[114]='%s föll mot sin död %s gånger.',
  [115]='%s brann upp %s gånger.',[112]='%s drunknade %s gånger.',[594]='Hogger fällde %s %s gånger.',
  [98]='%s klarade %s quest. Redigt jobbat.',[341]='%s kom hem med %s episka fynd.',
- [107]='%s fällde %s varelser.',[345]='%s drack %s hälsodrycker.',[1044]='%s valde Need %s gånger.',
+ [107]='%s fällde %s varelser.',[345]='%s drack %s hälsodrycker.',[1044]='%s drog till med %s need-rolls.',
  [1518]='%s drog upp %s fiskar. Det nappade visst.',[108]='%s fällde %s smådjur. Varför då?',
  [1042]='%s delade ut %s kramar.',[1065]='%s vinkade %s gånger.',[1047]='%s suckade uppgivet %s gånger.',
  [1066]='%s skrattade %s gånger.',[193]='%s slog till med %s i en enda träff.',[189]='%s läkte %s i ett enda svep.'
@@ -134,8 +134,8 @@ function N.Build(edition,records,db,week,now)
     local spot=edition.spotlight
     local main=spot and string.format(story[spot.id] or '%s noterade %s i veckans utvalda gren.',spot.name,string.format('%.0f',spot.value))
         or 'Lite lugnare i spalterna. Redaktionen tar gärna emot tips innan pressen går.'
-    if pvp[1] and week%2==0 then main=pvp[1].name..' ledde striderna ute i världen med '..pvp[1].value..'. Slagfält räknas inte här.' end
-    main=main..'\n\n'..participants..' karaktärer rapporterade till numret. Siffrorna kommer från sparade avläsningar; eftersläpande resultat räknas när spelaren återvänder.\n\nMer från guilden på nästa sida.'
+    if pvp[1] and week%2==0 then main=pvp[1].name..' ledde striderna ute i världen med '..pvp[1].value..'.' end
+
     local front={name='Förstasidan',layout=week%2==0 and 'front' or 'frontLedger',texture=week%2==0 and 'NewsletterFront1.png' or 'NewsletterFront2.png',fields={
         masthead='OF-Posten',edition=dateLine(edition),headline=headline,byline='FRÅN GUILDEN  /  VECKAN SOM GICK',lead=main,
         caption=week%2==0 and 'En stilla förmiddag på Götaplatsen i Orgrimmar.' or 'Ordning på guldet. Kvitto medtages.',
@@ -151,17 +151,17 @@ function N.Build(edition,records,db,week,now)
         edition.pages[#edition.pages+1]={name=name,layout=name=='Goblinens kassabok' and 'dataLedger' or 'dataStories',texture='NewsletterInside.png',fields={
             masthead=name,edition=dateLine(edition),headline=headline,intro=intro,
             leftTitle=one.title,leftValue=one.value or '',leftBody=one.body,
-            rightTitle=two and two.title or 'REDAKTÖREN TYCKER TILL',rightValue=two and two.value or '',rightBody=two and two.body or (tips[week%#tips+1]..''),
+            rightTitle=two and two.title or '',rightValue=two and two.value or '',rightBody=two and two.body or '',
             footer='OF-Posten  |  '..N.Date(edition.publishedAt)..''
         }}
     end
     local ledger={}
-    if wealth then ledger[#ledger+1]={title='GÔTT OM GULD',value=N.Money(gold[1].value),body=gold[1].name..' har mest guld i fickorna.\n\n'..board(gold,true)..'\n\nGoblinen kallar det deklaration. Det här är guldet i fickorna, inte intjänat guld. Bank, prylar och saknade rapporter räknas inte.\n\nIngen skatt uttagen. Än.'} end
-    if repairs[1] then ledger[#ledger+1]={title='SMEDEN TACKAR',value=N.Money(repairs[1].value),body=repairs[1].name..' toppar de registrerade reparationsnotorna.\n\n'..board(repairs,true)..'\n\nBekräftade betalningar för att laga all utrustning med egna pengar. Enstaka föremål och guildbetalda reparationer ingår inte.\n\nNotan säger inte hur många gånger någon dog. Smeden klagar inte.'} end
+    if wealth then ledger[#ledger+1]={title='GÔTT OM GULD',value=N.Money(gold[1].value),body=gold[1].name..' har mest guld i fickorna.\n\n'..board(gold,true)..'\n\nIngen skatt uttagen. Än.'} end
+    if repairs[1] then ledger[#ledger+1]={title='SMEDEN TACKAR',value=N.Money(repairs[1].value),body=repairs[1].name..' toppar de registrerade reparationsnotorna.\n\n'..board(repairs,true)..'\n\nSmeden klagar inte.'} end
     feature('Goblinens kassabok','Nånstans tog pengarna vägen.',ledger,'Vi har tittat i börsarna och räknat smedens kvitton.')
     local roads={}
-    if pvp[1] then roads[#roads+1]={title='STÖK PÅ VÄGARNA',value=pvp[1].value..' segrar ute i världen',body=pvp[1].name..' noterade '..pvp[1].value..' ärofyllda segrar ute i världen.\n\n'..board(pvp)..'\n\nBara strider ute i världen. Slagfält ingår inte.\n\nPlanerad drabbning eller gräl om ett quest? Det säger inte siffrorna.'} end
-    if race then roads[#roads+1]={title='VÄGEN TILL SEXTIO',value='Nivå '..levels[1].value,body=levels[1].name..' har högst rapporterad nivå: '..levels[1].value..'.\n\n'..board(levels)..'\n\nSenast rapporterade nivåer i detta nummer. Alla karaktärer räknas, även extrakaraktärer.\n\nSpalten vilar när alla nått 60 eller när det står still.'} end
+    if pvp[1] then roads[#roads+1]={title='STÖK PÅ VÄGARNA',value=pvp[1].value..' segrar ute i världen',body='Höj stopet för '..pvp[1].name..' och '..pvp[1].value..' ärofyllda segrar ute i världen. Alliansen får la ta en annan väg hem.\n\n'..board(pvp)} end
+    if race then roads[#roads+1]={title='GUILDENS SVETTIGASTE',value='Nivå '..levels[1].value,body=levels[1].name..' har högst rapporterad nivå: '..levels[1].value..'.\n\n'..board(levels)} end
     feature('Ute på vägarna','Lite framåt. Lite slagsmål.',roads,'Strider ute i världen och vägen till sextio, när det finns nåt att skriva om.')
     if #ledger==0 and #roads==0 and #active>0 then
         feature('Runt om i guilden','Det lilla är också värt lite tjöt.',{second,third},'Veckans rapporterade bravader i lite närmare blick. Tomma räknare får vila.')
@@ -170,10 +170,10 @@ function N.Build(edition,records,db,week,now)
     local needs,kills=rows(records,1044,true),rows(records,1487,true)
     local spotlight={}
     if needs[1] then spotlight[#spotlight+1]={title='DEN BEHÖVDE JAG LA',value=string.format('%.0f need-rolls',needs[1].value),
-        body=board(needs)..'\n\n'..needs[1].name..' har tryckt Need flest gånger. Om allt verkligen behövdes lämnar vi åt guilden att tjöta om.\n\nTotalt registrerade Need-val, inte vunna föremål och inte bara denna vecka.'} end
+        body=board(needs)..'\n\n'..needs[1].name..' har rollat need flest gånger. Den behövdes la.'} end
     if kills[1] then spotlight[#spotlight+1]={title='SISTA SMÄLLEN',value=string.format('%.0f killing blows',kills[1].value),
-        body=board(kills)..'\n\n'..kills[1].name..' toppar räknaren Total Killing Blows. Nån måste la avsluta jobbet.\n\nKaraktärens rapporterade total. Inte ärofyllda segrar, och inte bara veckans resultat.'} end
-    feature('Need & sista smällen','Den behövde jag. Den med.',spotlight,'Karaktärernas rapporterade totalsiffror. Okända värden räknas aldrig som noll.')
+        body=board(kills)..'\n\n'..kills[1].name..' delade ut flest sista smällar. Nån måste la avsluta jobbet.'} end
+    feature('Need & sista smällen','Den behövde jag. Den med.',spotlight,'Totalt per karaktär.')
     local duels={}
     for name,r in pairs(records) do
         local won,lost=r.finish[319],r.finish[320]
@@ -190,25 +190,25 @@ function N.Build(edition,records,db,week,now)
         local losses=rows(records,320,true)
         if losses[1] then lines[#lines+1]='Flest förluster: '..losses[1].name..' ('..string.format('%.0f',losses[1].value)..'). Vi tar la en till?' end
         contests[#contests+1]={title='SKA VI TA DET UTANFÖR?',value=duels[1].won..' vinster',
-            body=table.concat(lines,'\n\n')..'\n\nFlest vinster först. Vid lika: färre förluster. Det här är vinster/förluster, inte dödsfall. Karaktärernas rapporterade totalsiffror.'}
+            body=table.concat(lines,'\n\n')}
     end
     local deposits=db.bankDonations
     if deposits and deposits[1] then contests[#contests+1]={title='GÖTT, NÅN BETALAR',value=N.Money(deposits[1].value),
-        body=board(deposits,true)..'\n\n'..deposits[1].name..' toppar guldinsättningarna som syns i bankloggen. Goblinen tackar.\n\nBara direkta insättningar i den senast lästa loggen inom utgåvans period. Äldre rader kan ha försvunnit; detta är ingen fullständig veckosumma. Tiderna är ungefärliga.'} end
+        body=board(deposits,true)..'\n\n'..deposits[1].name..' toppar guldinsättningarna som syns i bankloggen. Goblinen tackar.'} end
     feature('Dueller & guildkassan','Lite slagsmål. Lite samhällsnytta.',contests,'Vem tar flest dueller, och vem håller kassan vid liv? Bara tillgängliga uppgifter trycks.')
     -- Compact, data-first activity pages: only measured changes qualify.
     local activities={{347,'GÔTT I MAGEN','portioner mat'},{346,'EN TILL, ELLER?','drycker'},{349,'STAMKUND I LUFTEN','flygresor'},
         {98,'QUEST AVKLARADE','avklarade quest'},{94,'DET FÅR VA','övergivna quest'},{112,'TOG SIG VATTEN ÖVER HUVUDET','drunkningar'},
         {1518,'DET NAPPADE','fångade fiskar'},{353,'HEM LJUVA HEM','hemresor med hearthstone'},{114,'GENVÄGEN NER','dödsfall efter fall'},
-        {1044,'DEN BEHÖVDE JAG','Need-val'},{1042,'EN KRAM PÅ DET','kramar'},{1066,'NÅN HADE ROLIGT','skratt'}}
+        {1044,'DEN BEHÖVDE JAG','need-rolls'},{1042,'EN KRAM PÅ DET','kramar'},{1066,'NÅN HADE ROLIGT','skratt'}}
     local cards={}
     for _,metric in ipairs(activities) do
         local list=rows(records,metric[1])
-        if list[1] then cards[#cards+1]={title=metric[2],body=board(list)..'\n\n'..metric[3]..' sedan förra avläsningen.'} end
+        if list[1] then cards[#cards+1]={title=metric[2],body=board(list)..'\n\n'..metric[3]} end
     end
     for offset=1,#cards,6 do
         if #edition.pages>=7 then break end -- reserve final page for professions; protocol max 8
-        local fields={masthead='Veckan i siffror',edition=dateLine(edition),headline='Det här hade ni för er.',intro='Topp tre per räknare. Sena rapporter kan innehålla äldre händelser.'}
+        local fields={masthead='Veckan i siffror',edition=dateLine(edition),headline='Det här hade ni för er.',intro=''}
         for i=1,6 do local card=cards[offset+i-1];if card then fields['card'..string.char(64+i)..'Title']=card.title;fields['card'..string.char(64+i)..'Body']=card.body end end
         edition.pages[#edition.pages+1]={name='Veckan i siffror',layout='dataSix',texture='NewsletterInside.png',fields=fields}
     end
