@@ -219,7 +219,10 @@ renderPage=function()
         end
         field.slot=slot
         field.label:SetJustifyH(slot.center and 'CENTER' or 'LEFT');field.label:SetJustifyV('TOP')
-        field.label:SetTextColor(ink[1],ink[2],ink[3]);field.label:SetText(printedBackground and slot.key=='masthead' and '' or (page.fields[slot.key] or ''))
+        local text=page.fields[slot.key] or ''
+        -- Suppress redundant captions in already-published issues too.
+        if page.layout=='professions' and text:find('Ingen rapporterad nivå än.',1,true)==1 then text='Ingen rapporterad nivå än.' end
+        field.label:SetTextColor(ink[1],ink[2],ink[3]);field.label:SetText(printedBackground and slot.key=='masthead' and '' or text)
         field.label:Show();activeFields[#activeFields+1]=field
     end
     -- Keep the old texture name in shared issues for compatibility with older readers.

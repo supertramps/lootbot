@@ -94,7 +94,8 @@ assert(demo.pages[2].layout~=demo.pages[3].layout)
 local all='';for _,page in ipairs(demo.pages) do for _,v in pairs(page.fields) do all=all..v..'\n' end end
 for _,word in ipairs({'portioner mat','drycker','flygresor','övergivna quest','drunkningar','Fishing','Cooking','First Aid'}) do assert(all:find(word,1,true),word) end
 assert(demo.pages[#demo.pages].fields.cardABody:find('150',1,true))
-assert(quiet.pages[#quiet.pages].fields.cardABody:find('Ingen rapporterad nivå',1,true))
+assert(quiet.pages[#quiet.pages].fields.cardABody=='Ingen rapporterad nivå än.')
+assert(quiet.pages[#quiet.pages].fields.cardDBody=='Ingen rapporterad nivå än.')
 
 -- New layouts and expanded readings survive guild publication serialization.
 demo.demo=nil

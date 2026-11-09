@@ -181,6 +181,12 @@ SlashCmdList.LOOTBOT=function(command)
         say(LootBotGuildBankDonations and LootBotGuildBankDonations.Request() or 'Restart WoW to load bank-log reading.')
         return
     end
+    if command=='newspaper coverage' then
+        if LootBotGuildStatistics and LootBotGuildStatistics.CoverageStatus then
+            for _,line in ipairs(LootBotGuildStatistics.CoverageStatus()) do say(line) end
+        end
+        return
+    end
     if command=='newspaper status' or command=='news status' then
         if LootBotGuildStatistics and LootBotGuildStatistics.PublicationStatus then say(LootBotGuildStatistics.PublicationStatus())
         else say('Restart WoW once to load the newspaper modules.') end

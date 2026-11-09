@@ -70,6 +70,21 @@ function LootBotGuildStatistics.PublicationStatus()
     local count=0; for _ in pairs(engine and engine.db.checkpoints or {}) do count=count+1 end
     return text..' Statistics received: '..count..' characters.'
 end
+function LootBotGuildStatistics.CoverageStatus()
+    if not engine then return {'Ingen guildstatistik inläst än.'} end
+    local lines={LootBotGuildStatistics.PublicationStatus()}
+    local latest=publication and publication:Latest()
+    local printed=latest and latest.edition.readings or {}
+    local names={};for name in pairs(roster) do names[#names+1]=name end;table.sort(names)
+    for _,name in ipairs(names) do
+        local checkpoint=engine.db.checkpoints[name]
+        local last=0
+        for _,stamp in pairs(checkpoint and checkpoint.times or {}) do last=math.max(last,stamp) end
+        local state=last>0 and ('senaste data för '..math.floor(math.max(0,GetServerTime()-last)/60)..' min sedan') or 'inga data mottagna'
+        lines[#lines+1]=name..': '..state..(printed[name] and '; med i publicerade underlaget.' or '; inte i publicerade underlaget.')
+    end
+    return lines
+end
 function LootBotGuildStatistics.CurrentEdition()
     local now=GetServerTime()
     if not engine or not engine.db then return LootBotGuildStatistics.Launch(now) end

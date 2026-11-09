@@ -234,7 +234,7 @@ function N.ProfessionPage(edition,records)
     for i,metric in ipairs(professions) do
         local list=rows(records,metric[1],true)
         fields['card'..string.char(64+i)..'Title']=metric[2]
-        fields['card'..string.char(64+i)..'Body']=(list[1] and board(list) or 'Ingen rapporterad nivå än.')..'\n\n'..(metric[3] and 'Högsta uppnådda nivå' or 'Rapporterad nivå')
+        fields['card'..string.char(64+i)..'Body']=list[1] and (board(list)..'\n\n'..(metric[3] and 'Högsta uppnådda nivå' or 'Rapporterad nivå')) or 'Ingen rapporterad nivå än.'
     end
     return {name='Yrkesfolket',layout='professions',texture='NewsletterInside.png',fields=fields}
 end

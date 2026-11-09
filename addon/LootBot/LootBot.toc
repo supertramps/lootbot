@@ -2,7 +2,7 @@
 ## Title: LootBot
 ## Notes: Guild loot relay and OF-Posten, with direct API statistics.
 ## Author: LootBot
-## Version: 0.4.19
+## Version: 0.4.20
 ## SavedVariables: LootBotDB
 Protocol.lua
 Relay.lua
