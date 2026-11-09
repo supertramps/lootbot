@@ -209,6 +209,10 @@ renderPage=function()
     local printedBackground=({professions='NewsletterProfessions.png',dataLedger='NewsletterLedger.png',dataStories='NewsletterStories.png',dataSix='NewsletterStatistics.png'})[page.layout]
     local layout=LootBotNewspaperEdition.Layouts[page.layout]
     for i,slot in ipairs(layout) do
+        -- The editorial has no figure on the left, so its copy can use the full row.
+        if page.layout=='dataStories' and slot.key=='rightBody' and page.fields.rightTitle=='REDAKTÖREN HAR ORDET' then
+            slot={key=slot.key,x=95,y=slot.y,w=896,h=slot.h,size=21}
+        end
         local field=pageFields[i]
         if not field then
             field={label=content:CreateFontString(nil,'OVERLAY','GameFontNormal')};pageFields[i]=field

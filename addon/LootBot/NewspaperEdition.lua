@@ -150,7 +150,12 @@ function N.Build(edition,records,db,week,now)
         if #sections==0 then return end
         local one,two=sections[1],sections[2]
         if not two and not printedEditorTip then
-            two={title='REDAKTÖRENS TIPS',body="Det är resan som är målet, så ta't lugnt tjabo.\n\nEn bartender på Port Arthur överhörde en överförfriskad tauren berätta att han sett en enorm svart drake flyga över Mulgore. Vingarna skymde månen, sa han. Bartendern ställde fram ett glas vatten."}
+            two={title='REDAKTÖREN HAR ORDET',body=table.concat({
+                "Det är resan som är målet, så ta't lugnt tjabo.",
+                'Det är så mycket folk i Barrens att man får köa för att slå ihjäl en zebra. Medelåldern verkar va långt över trettio nu för tiden. Förr sa folk ”en quest till”. Nu säger de ”en quest till, sen måste jag lägga ungarna”.',
+                'En bartender på Port Arthur överhörde en överförfriskad tauren berätta att han sett en enorm svart drake flyga över Mulgore. Den var på väg mot kärren i Dustwallow, sa han. När han berättade det igen vid stängning hade draken hunnit bli dubbelt så stor.',
+                'Ha d gött. Glenn.',
+            },'\n\n')}
             printedEditorTip=true
         end
         edition.pages[#edition.pages+1]={name=name,layout=name=='Goblinens kassabok' and 'dataLedger' or 'dataStories',texture='NewsletterInside.png',fields={
