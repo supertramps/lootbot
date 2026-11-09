@@ -150,7 +150,7 @@ function N.Build(edition,records,db,week,now)
         if #sections==0 then return end
         local one,two=sections[1],sections[2]
         if not two and not printedEditorTip then
-            two={title='REDAKTÖRENS TIPS',body="Det är resan som är målet, så ta't lugnt tjabo.\n\nEn drake stor som hela Port Arthur ska ha synts till i trakten. Uppgiften kommer från ett bord på just Port Arthur. Vi avvaktar tills nån sett den före första ölen."}
+            two={title='REDAKTÖRENS TIPS',body="Det är resan som är målet, så ta't lugnt tjabo.\n\nEn bartender på Port Arthur överhörde en överförfriskad tauren berätta att han sett en enorm svart drake flyga över Mulgore. Vingarna skymde månen, sa han. Bartendern ställde fram ett glas vatten."}
             printedEditorTip=true
         end
         edition.pages[#edition.pages+1]={name=name,layout=name=='Goblinens kassabok' and 'dataLedger' or 'dataStories',texture='NewsletterInside.png',fields={
