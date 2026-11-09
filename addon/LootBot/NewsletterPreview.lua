@@ -3,7 +3,12 @@ LootBotNewsletterPreview = {}
 local News = LootBotNewsletterPreview
 
 local PAGE_W, PAGE_H = 1086, 1448
-local fitWidth = math.min(UIParent:GetHeight()*0.90*PAGE_W/PAGE_H,UIParent:GetWidth()*0.90)
+local NAV_HEIGHT, NAV_GAP = 28, 5
+local function fittedWidth()
+    local availableHeight=UIParent:GetHeight()*.97-NAV_HEIGHT-NAV_GAP
+    return math.min(availableHeight*PAGE_W/PAGE_H,UIParent:GetWidth()*.95)
+end
+local fitWidth = fittedWidth()
 local pageWidth = fitWidth
 local MIN_WIDTH, MAX_WIDTH = fitWidth, fitWidth*2.5
 local ink = {0.19, 0.13, 0.09}
@@ -178,8 +183,8 @@ applyZoom=function(width)
 end
 
 navigation=CreateFrame('Frame','LootBotNewsletterNavigation',frame)
-navigation:SetSize(fitWidth,28)
-navigation:SetPoint('TOPLEFT',frame,'BOTTOMLEFT',0,-5)
+navigation:SetSize(fitWidth,NAV_HEIGHT)
+navigation:SetPoint('TOPLEFT',frame,'BOTTOMLEFT',0,-NAV_GAP)
 local navBackground=navigation:CreateTexture(nil,'BACKGROUND')
 navBackground:SetAllPoints(navigation);navBackground:SetColorTexture(0.08,0.065,0.045,0.88)
 local function navButton(name,text,point,x)
@@ -309,6 +314,14 @@ function News.Toggle()
     else News.Show() end
 end
 function News.Show(previewEdition)
+    -- UI dimensions can change after the addon loads (login, scale, resolution).
+    fitWidth=fittedWidth()
+    MIN_WIDTH,MAX_WIDTH=fitWidth,fitWidth*2.5
+    pageWidth=fitWidth
+    frame:SetSize(fitWidth,fitWidth*PAGE_H/PAGE_W)
+    frame:ClearAllPoints()
+    frame:SetPoint('CENTER',UIParent,'CENTER',0,(NAV_HEIGHT+NAV_GAP)/2)
+    navigation:SetSize(fitWidth,NAV_HEIGHT)
     News.previewEdition=previewEdition
     News.Refresh()
     frame:Show(); badgeText:Hide()

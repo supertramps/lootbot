@@ -81,7 +81,11 @@ for _,style in ipairs({'Crimson','Trycksvärta','WoW'}) do
  assert(db.weeks[week]==originalWeek)
  assert((LootBotDB.newspaperRead and LootBotDB.newspaperRead[UnitGUID('player')])==beforeRead)
 end
-assert(math.abs(LootBotNewsletterFrame.width-UIParent:GetHeight()*.90*1086/1448)<.01)
+-- Opening after a display resize fits the current screen and reserves navigation space.
+UIParent.GetHeight=function() return 1000 end
+LootBotNewsletterPreview.ShowDemo('WoW')
+assert(math.abs(LootBotNewsletterFrame.height-(1000*.97-33))<.01)
+assert(LootBotNewsletterNavigation.width==LootBotNewsletterFrame.width)
 
 local demo=N.Demo(GetServerTime())
 assert(demo.publishedAt==GetServerTime(),'preview date is today')

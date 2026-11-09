@@ -63,20 +63,26 @@ local function build()
     frame.paper=frame:CreateTexture(nil,'BACKGROUND')
     frame.paper:SetTexture(ROOT..'PeonToast.tga')
     frame.paper:SetPoint('TOPLEFT',frame,'TOPLEFT',105.3,0)
+    -- Mirror the torn right edge for a matching left edge behind loot portraits.
+    frame.paperEdge=frame:CreateTexture(nil,'BACKGROUND')
+    frame.paperEdge:SetTexture(ROOT..'PeonToast.tga')
+    frame.paperEdge:SetPoint('TOPLEFT',frame,'TOPLEFT',14,0)
+    frame.paperEdge:SetSize(91.3,130)
+    frame.paperEdge:SetTexCoord(1,1-91.3/390,0,1)
     frame.portrait=frame:CreateTexture(nil,'ARTWORK')
     frame.portrait:SetTexture(ROOT..'PeonToast.tga')
     frame.portrait:SetTexCoord(0,.27,0,1)
     frame.portrait:SetPoint('TOPLEFT',frame,'TOPLEFT',0,0); frame.portrait:SetSize(105.3,130)
     -- Item and mount portraits share the parchment's bronze visual language.
-    frame.icon=frame:CreateTexture(nil,'ARTWORK',nil,1); frame.icon:SetSize(102,102)
-    frame.icon:SetPoint('CENTER',frame,'TOPLEFT',57,-65)
+    frame.icon=frame:CreateTexture(nil,'ARTWORK',nil,1); frame.icon:SetSize(90,90)
+    frame.icon:SetPoint('CENTER',frame,'TOPLEFT',54,-65)
     frame.icon:SetTexCoord(.07,.93,.07,.93)
     frame.iconMask=frame:CreateMaskTexture()
     frame.iconMask:SetTexture('Interface\\CharacterFrame\\TempPortraitAlphaMask')
     frame.iconMask:SetAllPoints(frame.icon); frame.icon:AddMaskTexture(frame.iconMask)
     frame.iconBorder=frame:CreateTexture(nil,'OVERLAY',nil,0)
     frame.iconBorder:SetTexture(ROOT..'PingPortraitRing.tga')
-    frame.iconBorder:SetSize(120,120); frame.iconBorder:SetPoint('CENTER',frame,'TOPLEFT',57,-65)
+    frame.iconBorder:SetSize(106,106); frame.iconBorder:SetPoint('CENTER',frame,'TOPLEFT',54,-65)
     frame.words=CreateFrame('Frame',nil,frame); frame.words:SetAllPoints(frame); frame.words:EnableMouse(false)
     frame.name=label(frame.words,16,113,-39,220)
     frame.message=label(frame.words,14,113,-62,220)
@@ -113,12 +119,7 @@ local function animate(t)
     local fadeIn=math.sin(math.min(1,t/.2)*math.pi/2)
     local fadeOut=math.sin(math.min(1,math.max(0,(active.duration-t)/.3))*math.pi/2)
     frame:SetAlpha(motion and math.min(fadeIn,fadeOut) or 1)
-    -- The peon slice includes its own parchment. Replacement portraits need
-    -- the clean paper slice stretched beneath them, with the same right edge.
-    local paperLeft=active.kind=='level' and 105.3 or 38
-    frame.paper:ClearAllPoints()
-    frame.paper:SetPoint('TOPLEFT',frame,'TOPLEFT',paperLeft,0)
-    frame.paper:SetSize(math.max(.01,(390-paperLeft)*reveal),130)
+    frame.paper:SetSize(math.max(.01,284.7*reveal),130)
     frame.paper:SetTexCoord(.27,.27+.73*math.max(.0001,reveal),0,1)
     frame.words:SetAlpha(motion and math.min(1,math.max(0,(t-.15)/.15)) or 1)
     local stampAge=t-.32
@@ -171,11 +172,11 @@ local function startNext()
             frame.name:SetText(item.name)
             if item.kind=='level' then
                 frame.message:SetText('reached level '..item.level..'!'); frame.number:SetText(tostring(item.level))
-                frame.portrait:Show(); frame.icon:Hide(); frame.iconBorder:Hide()
+                frame.portrait:Show(); frame.paperEdge:Hide(); frame.icon:Hide(); frame.iconBorder:Hide()
             else
                 local rarity=({[4]='an epic',[5]='a legendary',[6]='an artifact',[7]='an heirloom'})[item.quality] or 'an epic'
                 frame.message:SetText(item.kind=='item' and ('looted '..rarity..'!') or 'got their first mount!')
-                frame.portrait:Hide(); frame.icon:Show(); frame.iconBorder:Show()
+                frame.portrait:Hide(); frame.paperEdge:Show(); frame.icon:Show(); frame.iconBorder:Show()
                 frame.icon:SetTexture(item.icon or 134400)
             end
             -- Reserve a third line only for the max-level joke; keep the seal clear of it.
