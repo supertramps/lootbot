@@ -76,7 +76,8 @@ local function recordLoot(data)
     if quality==nil then return false end
     local testing=LootBotLocalTestSettings and LootBotLocalTestSettings.allLoot==true or false
     if not testing and (quality<RARE or quality<effectiveQuality()) then return true end
-    relay:record({kind='loot',itemId=data.itemId,quality=quality,quantity=data.quantity,itemName=data.itemName,test=testing})
+    local recorded=relay:record({kind='loot',itemId=data.itemId,quality=quality,quantity=data.quantity,itemName=data.itemName,test=testing})
+    if LootBotLevelToast then LootBotLevelToast.Loot(recorded) end
     return true
 end
 local function loot(message)
@@ -176,6 +177,11 @@ for _,event in ipairs({'PLAYER_LOGIN','CHAT_MSG_LOOT','PLAYER_LEVEL_UP','CHAT_MS
 SLASH_LOOTBOT1='/lootbot'
 SlashCmdList.LOOTBOT=function(command)
     command=(command or ''):lower():match('^%s*(.-)%s*$')
+    if LootBotLevelToast and LootBotLevelToast.Command(command) then return end
+    if command=='bank' then
+        say(LootBotGuildBankDonations and LootBotGuildBankDonations.Request() or 'Restart WoW to load bank-log reading.')
+        return
+    end
     if command=='newspaper status' or command=='news status' then
         if LootBotGuildStatistics and LootBotGuildStatistics.PublicationStatus then say(LootBotGuildStatistics.PublicationStatus())
         else say('Restart WoW once to load the newspaper modules.') end
@@ -238,9 +244,9 @@ SlashCmdList.LOOTBOT=function(command)
         if db.epicLocked then say('Blue-drop announcements end at level 40. Your filter is Epic and above.')
         else db.personalQuality=RARE; say('Personal loot filter: Rare and above.') end
     elseif command=='version' then
-        local version,build,_,interface=GetBuildInfo(); say('LootBot 0.4.2; client '..version..', build '..build..', interface '..interface)
+        local version,build,_,interface=GetBuildInfo(); say('LootBot 0.4.5; client '..version..', build '..build..', interface '..interface)
     else
-        say('relay on/off | sync | test | test level | test backlog | newspaper | stats | filter [rare|epic] | on/off.')
+        say('relay on/off | sync | test | test level | test backlog | newspaper | stats | popup | filter [rare|epic] | on/off.')
         say('Mode: '..(db.relay and 'relay' or 'member')..'; saved own events: '..#db.own..'; synced events: '..#db.inbox)
     end
 end

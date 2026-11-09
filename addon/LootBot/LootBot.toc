@@ -1,17 +1,19 @@
 ## Interface: 11509, 16001
 ## Title: LootBot
-## Notes: Guild loot relay and Original Formalities Weekly, with direct API statistics.
+## Notes: Guild loot relay and OF-Posten, with direct API statistics.
 ## Author: LootBot
-## Version: 0.4.2
+## Version: 0.4.10
 ## SavedVariables: LootBotDB
 Protocol.lua
 Relay.lua
 LocalTestSettings.lua
 NewsletterMetrics.lua
+GuildBankDonations.lua
 StatisticsProbe.lua
 GuildStatistics.lua
 NewspaperPublication.lua
 StatisticsSharing.lua
+LevelToast.lua
 LootBot.lua
 NewspaperEdition.lua
 NewsletterPreview.lua

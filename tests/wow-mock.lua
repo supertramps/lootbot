@@ -29,12 +29,18 @@ C_ChatInfo={RegisterAddonMessagePrefix=function() end,SendAddonMessage=function(
 function GetRealmName() return 'TestRealm' end
 function GetBuildInfo() return '1.15.0', '00000', '', 11500 end
 function print() end
-function CreateFrame(_, name)
+function CreateFrame(_, name, parent)
     local frame = { scripts={}, textures={}, shown=true }
+    if parent then parent.children=parent.children or {}; parent.children[#parent.children+1]=frame end
     local nop = function() end
     for _, method in ipairs({'SetFrameStrata','SetFrameLevel','EnableMouse','SetAlpha','SetScale','SetSize','ClearAllPoints','SetPoint','RegisterEvent',
         'SetClampedToScreen','SetMovable','RegisterForDrag','StartMoving','StopMovingOrSizing','EnableMouseWheel',
-        'SetNormalTexture','SetHighlightTexture','SetAllPoints'}) do frame[method]=nop end
+        'SetNormalTexture','SetHighlightTexture','SetAllPoints','SetBackdrop','RegisterForClicks',
+        'SetBackdropColor','SetMinMaxValues','SetValueStep','SetObeyStepOnDrag'}) do frame[method]=nop end
+    function frame:GetCenter() return self.x or 500,self.y or 400 end
+    function frame:SetValue(value) self.value=value; if self.scripts.OnValueChanged then self.scripts.OnValueChanged(self,value) end end
+    function frame:SetChecked(value) self.checked=value end
+    function frame:GetChecked() return self.checked end
     function frame:SetScale(scale) self.scale=scale end
     function frame:SetSize(width,height) self.width=width; self.height=height end
     function frame:SetPoint(_, _, _, x, y) self.x=x; self.y=y end
@@ -50,12 +56,14 @@ function CreateFrame(_, name)
     function frame:SetVerticalScroll(value) self.verticalScroll=value end
     function frame:GetVerticalScroll() return self.verticalScroll or 0 end
     function frame:CreateTexture()
-        local texture = { SetSize=nop, SetPoint=nop, SetAllPoints=nop, SetTexture=nop, SetTexCoord=nop, Hide=nop }
+        local texture = { SetSize=nop, SetPoint=nop, SetAllPoints=nop, SetTexture=nop, SetTexCoord=nop, Hide=nop,
+            Show=nop, ClearAllPoints=nop, SetAlpha=nop, SetBlendMode=nop, SetVertexColor=nop, AddMaskTexture=nop }
         function texture:SetColorTexture(r) self.color=r end
         function texture:SetTexture(path) self.path=path end
         self.textures[#self.textures+1]=texture
         return texture
     end
+    frame.CreateMaskTexture=frame.CreateTexture
     function frame:CreateFontString(_, _, inherits)
         local label={ SetPoint=nop, ClearAllPoints=nop, SetSize=nop, SetJustifyH=nop, SetJustifyV=nop,
             SetTextColor=nop, Hide=nop, font=inherits }

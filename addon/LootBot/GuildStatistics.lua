@@ -3,7 +3,7 @@ LootBotGuildStatistics = {}
 local G=LootBotGuildStatistics
 local WEEK,MONDAY=604800,345600
 function G.Week(t) return math.floor((t-MONDAY)/WEEK) end
-local publicationIds={60,98,107,108,112,114,115,189,193,336,341,345,381,594,1042,1044,1047,1065,1066,1518,900001,900002,900003}
+local publicationIds={94,281,346,347,349,353,1519,1524,1527,1532,1535,1536,1537,1538,1541,1542,1544,60,98,107,108,112,114,115,189,193,319,320,336,341,345,381,594,1042,1044,1047,1065,1066,1487,1518,900001,900002,900003}
 local function valid(v) return type(v)=='number' and v==v and v>=0 and v<=1e15 end
 local function cleanName(v) return type(v)=='string' and #v<=100 and not v:find('[|;=,%c]') end
 function G.New(db,api)
@@ -195,6 +195,7 @@ function G.PublicationDraft(db,now,printed,member)
     end
     for player,values in pairs(printed) do previous[player]={start=values,finish=values,first=now,last=now} end
     local history={startedWeek=db.startedWeek,weeks={[current-1]=records}}
+    if LootBotGuildBankDonations then history.bankDonations=LootBotGuildBankDonations.Report(MONDAY+(current-1)*WEEK,MONDAY+current*WEEK) end
     if next(previous) then history.weeks[current-2]=previous end
     return G.Edition(history,now),readings
 end

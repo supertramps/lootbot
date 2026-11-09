@@ -3,7 +3,7 @@
 LootBotNewspaperPublication={}
 local P=LootBotNewspaperPublication
 local WEEK,MONDAY,CHUNK=604800,345600,180
-local textures={front='NewsletterFront1.png',frontLedger='NewsletterFront2.png',inside='NewsletterInside.png',back='NewsletterBack.png'}
+local textures={dataLedger='NewsletterInside.png',dataStories='NewsletterInside.png',dataSix='NewsletterInside.png',professions='NewsletterInside.png',front='NewsletterFront1.png',frontLedger='NewsletterFront2.png',inside='NewsletterInside.png',back='NewsletterBack.png'}
 local function name(v) return type(v)=='string' and #v>0 and #v<=100 and not v:find('[|;%c]') end
 local function hash(v) return string.format('%.0f',LootBotProtocol.adler32(v)%4294967296.0) end
 local function escape(v) return (tostring(v):gsub('[%%%z\1-\31\127-\255]',function(c) return string.format('%%%02X',c:byte()) end)) end
@@ -62,12 +62,12 @@ function P.Decode(body,now)
             for pair in f[3]:gmatch('[^,]+') do
                 local id,value=pair:match('^(%d+)=(%d+)$');id,value=tonumber(id),tonumber(value)
                 if not id or id>1000000000 or not value or value>1e15 or values[id]~=nil then return nil end
-                count=count+1;if count>40 then return nil end;values[id]=value
+                count=count+1;if count>64 then return nil end;values[id]=value
             end
             edition.readings[f[2]]=values
         else return nil end
     end
-    if not edition or #edition.pages<2 or edition.pages[#edition.pages].layout~='back' then return nil end
+    if not edition or #edition.pages<2 or (edition.pages[#edition.pages].layout~='back' and edition.pages[#edition.pages].layout~='professions') then return nil end
     return edition
 end
 function P.New(db,api)

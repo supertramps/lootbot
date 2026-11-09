@@ -1,0 +1,6 @@
+{
+  "tool": "Built-in image_gen.imagegen",
+  "source": "of-professions.png",
+  "target": "NewsletterProfessions.png",
+  "prompt": "Warm aged cream Western newspaper, heading Yrkesfolket in readable conventional serif with normal k; twelve blank leaderboard panels, three columns four rows; fishing rods, smithing hammers, herbs, needles in margins; anvil, flask and fishing reel at bottom; no other text. Statistics remain native WoW font."
+}

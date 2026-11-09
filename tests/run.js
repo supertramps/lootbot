@@ -131,6 +131,74 @@ function vm() {
   run(fs.readFileSync(path.join(__dirname, '../addon/LootBot/Relay.lua'), 'utf8'));
   return { run, bytes: () => Buffer.from(lua.lua_tolstring(L, -1)), close: () => lua.lua_close(L) };
 }
+test('level popups validate fresh guild milestones, deduplicate, preview locally and respect saved controls', () => {
+  const v=vm();
+  v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/LevelToast.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'level-toast.lua'),'utf8'));
+  v.close();
+});
+
+test('minimap routes left to newspaper, right to options; dropdown previews selected level locally', () => {
+  const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  for(const file of ['LevelToast.lua','LootBot.lua','NewsletterPreview.lua'])
+    v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot',file),'utf8'));
+  v.run(`
+    LootBotDingDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
+    LootBotDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
+    local news=0; LootBotNewsletterPreview.Toggle=function() news=news+1 end
+    local icon=LootBotNewsletterMinimapButton
+    icon.scripts.OnClick(icon,'LeftButton'); assert(news==1)
+    icon.scripts.OnClick(icon,'RightButton'); assert(news==1 and LootBotPopupOptions:IsShown())
+    local function find(root,text)
+      for _,child in ipairs(root.children or {}) do
+        if child.text==text then return child end
+        local found=find(child,text); if found then return found end
+      end
+    end
+    local sent=0; C_ChatInfo.SendAddonMessage=function() sent=sent+1 end
+    find(LootBotPopupOptions,'Level 40  v').scripts.OnClick()
+    find(LootBotPopupOptions,'Level 60').scripts.OnClick()
+    find(LootBotPopupOptions,'Preview level').scripts.OnClick()
+    assert(LootBotLevelToastFrame.message.text=='reached level 60!')
+    assert(LootBotLevelToastFrame.name.text=='LootTester' and sent==0)
+    find(LootBotPopupOptions,'Legendary loot').scripts.OnClick()
+    assert(LootBotLevelToastFrame.message.text=='looted a legendary!' and sent==0)
+    SlashCmdList.LOOTBOT('options'); assert(LootBotPopupOptions:IsShown())
+    local choice
+    LootBotNewsletterPreview.ShowDemo=function(style) choice=style end
+    find(LootBotPopupOptions,'Visa provtidning').scripts.OnClick()
+    assert(choice=='WoW' and sent==0 and not LootBotPopupOptions:IsShown())
+  `); v.close();
+});
+
+test('requested newsletter totals, duel ratios and read-only bank snapshots stay accurate', () => {
+  const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  for(const name of ['GuildStatistics','NewspaperEdition','GuildBankDonations'])
+    v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+name+'.lua'),'utf8'));
+  v.run(fs.readFileSync(path.join(__dirname,'requested-highlights.lua'),'utf8'));v.close();
+});
+
+test('Forever statistics capture uses full character names and matches the guild roster', () => {
+  const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
+  v.run(`UnitName=function()return 'Private','Property'end
+    C_PlayerInfo={ShouldDisplaySurname=function()return true end}
+    GetGuildRosterInfo=function()return 'Private Property-TestRealm'end`);
+  for(const name of ['GuildStatistics','NewspaperPublication','NewspaperEdition','StatisticsSharing','LootBot'])
+    v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+name+'.lua'),'utf8'));
+  v.run(`
+    local captures=0
+    LootBotStatisticsProbe={Capture=function()captures=captures+1;return {entries={{id=1044,numericValue=12}}}end}
+    LootBotDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
+    LootBotStatisticsDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
+    LootBotStatisticsDriver.scripts.OnUpdate(nil,1)
+    assert(captures==1)
+    local db=LootBotDB.guildStatistics['TestRealm:TestGuild']
+    assert(db.checkpoints['Private Property-TestRealm'].values[1044]==12)
+    assert(LootBotGuildStatistics.PublicationStatus():find('1 characters',1,true))
+  `);v.close();
+});
+
 test('actual Lua encoder matches the Node decoder byte for byte', () => {
   const v = vm();
   v.run(`return LootBotProtocol.packet({ id='${values[0]}', player='Alex-TestRealm', itemId=19019, quality=5, quantity=1, itemName='Test Sword', timestamp=${NOW}, test=false })`);
@@ -358,7 +426,7 @@ test('statistics driver shares API data without optical traffic; round minimap m
 
 test('newspaper pages show relevant guild stats, stable dates and working navigation', () => {
   const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
-  for(const file of ['GuildStatistics','NewspaperEdition','LootBot','NewsletterPreview'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
+  for(const file of ['GuildStatistics','NewspaperEdition','NewspaperPublication','LootBot','NewsletterPreview'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
   v.run(fs.readFileSync(path.join(__dirname,'newspaper-pages.lua'),'utf8'));v.close();
 });
 

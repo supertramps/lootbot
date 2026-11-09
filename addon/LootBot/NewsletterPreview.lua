@@ -3,7 +3,7 @@ LootBotNewsletterPreview = {}
 local News = LootBotNewsletterPreview
 
 local PAGE_W, PAGE_H = 1086, 1448
-local fitWidth = math.min(515,UIParent:GetHeight()*0.88*PAGE_W/PAGE_H,UIParent:GetWidth()*0.8)
+local fitWidth = math.min(UIParent:GetHeight()*0.90*PAGE_W/PAGE_H,UIParent:GetWidth()*0.90)
 local pageWidth = fitWidth
 local MIN_WIDTH, MAX_WIDTH = fitWidth, fitWidth*2.5
 local ink = {0.19, 0.13, 0.09}
@@ -166,8 +166,7 @@ applyZoom=function(width)
         local size=modern and slot.size or slot.key=='masthead' and 40 or slot.key=='headline' and 44 or slot.key=='lead' and 26
             or slot.key:find('Body') and 23 or slot.size
         local strong=modern and slot.strong or slot.key=='masthead' or slot.key=='headline' or slot.key:find('Title')
-        local font=modern and slot.role=='masthead' and 'Interface\\AddOns\\LootBot\\Fonts\\UnifrakturMaguntia.ttf'
-            or 'Interface\\AddOns\\LootBot\\Fonts\\CrimsonText-'..(strong and 'SemiBold' or 'Regular')..'.ttf'
+        local font=STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF'
         label:SetFont(font,math.max(9,size*scale))
     end
     local ratio=pageWidth/oldWidth
@@ -192,8 +191,8 @@ local function navButton(name,text,point,x)
     control:SetScript('OnLeave',function() label:SetTextColor(0.92,0.85,0.69) end)
     return control
 end
-previousButton=navButton('LootBotNewsletterPreviousPage','< Previous','LEFT',5)
-nextButton=navButton('LootBotNewsletterNextPage','Next >','RIGHT',-5)
+previousButton=navButton('LootBotNewsletterPreviousPage','< Föregående','LEFT',5)
+nextButton=navButton('LootBotNewsletterNextPage','Nästa >','RIGHT',-5)
 pageLabel=navigation:CreateFontString(nil,'OVERLAY','GameFontNormalSmall')
 pageLabel:SetPoint('CENTER');pageLabel:SetTextColor(0.92,0.85,0.69)
 renderPage=function()
@@ -202,6 +201,7 @@ renderPage=function()
     for _,field in ipairs(fields) do field.label:Hide() end
     for _,field in ipairs(pageFields) do field.label:Hide() end
     activeFields={}
+    local printedBackground=({professions='NewsletterProfessions.png',dataLedger='NewsletterLedger.png',dataStories='NewsletterStories.png',dataSix='NewsletterStatistics.png'})[page.layout]
     local layout=LootBotNewspaperEdition.Layouts[page.layout]
     for i,slot in ipairs(layout) do
         local field=pageFields[i]
@@ -210,14 +210,20 @@ renderPage=function()
         end
         field.slot=slot
         field.label:SetJustifyH(slot.center and 'CENTER' or 'LEFT');field.label:SetJustifyV('TOP')
-        field.label:SetTextColor(ink[1],ink[2],ink[3]);field.label:SetText(page.fields[slot.key] or '')
+        field.label:SetTextColor(ink[1],ink[2],ink[3]);field.label:SetText(printedBackground and slot.key=='masthead' and '' or (page.fields[slot.key] or ''))
         field.label:Show();activeFields[#activeFields+1]=field
     end
-    paper:SetTexture('Interface\\AddOns\\LootBot\\'..page.texture)
+    -- Keep the old texture name in shared issues for compatibility with older readers.
+    local texture=printedBackground or page.texture
+    if texture=='NewsletterFront2.png' then texture='NewsletterFront1.png' end
+    paper:SetTexture('Interface\\AddOns\\LootBot\\'..texture)
+    if not printedBackground and (page.layout:match('^data') or page.layout=='professions') then
+        paper:SetTexCoord(.24,.46,.39,.68) -- clean unprinted paper, no decorative adverts
+    else paper:SetTexCoord(.125,.875,0,1) end
     pageWidth=MIN_WIDTH;applyZoom(MIN_WIDTH)
     scroll:SetHorizontalScroll(0);scroll:SetVerticalScroll(0)
     News.pageIndex=pageIndex
-    pageLabel:SetText(pageIndex..' / '..#pages..'  -  '..(News.waiting and 'Awaiting printed issue' or page.name))
+    pageLabel:SetText(pageIndex..' / '..#pages..'  -  '..(News.waiting and 'Väntar på nästa nummer' or page.name))
     previousButton:SetEnabled(pageIndex>1);nextButton:SetEnabled(pageIndex<#pages)
     previousButton:SetAlpha(pageIndex>1 and 1 or 0.35);nextButton:SetAlpha(pageIndex<#pages and 1 or 0.35)
     if #pages>1 then navigation:Show() else navigation:Hide() end
@@ -272,7 +278,20 @@ buttonBorder:SetSize(54,54)
 buttonBorder:SetPoint('TOPLEFT',button,'TOPLEFT',0,0)
 buttonBorder:SetTexture('Interface\\Minimap\\MiniMap-TrackingBorder')
 button:SetHighlightTexture('Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight')
-button:SetScript('OnClick',function() News.Toggle() end)
+button:RegisterForClicks('LeftButtonUp','RightButtonUp')
+button:SetScript('OnClick',function(_,mouseButton)
+    if mouseButton=='RightButton' then
+        if LootBotLevelToast then LootBotLevelToast.Options() end
+    else News.Toggle() end
+end)
+button:SetScript('OnEnter',function(self)
+    GameTooltip:SetOwner(self,'ANCHOR_LEFT')
+    GameTooltip:SetText('LootBot')
+    GameTooltip:AddLine('Left-click: newspaper',1,1,1)
+    GameTooltip:AddLine('Right-click: options',1,1,1)
+    GameTooltip:Show()
+end)
+button:SetScript('OnLeave',function() GameTooltip:Hide() end)
 local badgeText=button:CreateFontString(nil,'OVERLAY','GameFontNormalSmall')
 badgeText:SetPoint('TOPRIGHT',button,'TOPRIGHT',2,2)
 badgeText:SetText('!')
@@ -298,7 +317,8 @@ function News.Show(previewEdition)
         LootBotDB.newspaperRead[UnitGUID('player')]=News.editionId
     end
 end
-function News.ShowDemo()
+function News.ShowDemo(fontChoice)
+    News.demoFont=fontChoice or 'Crimson'
     if LootBotNewspaperEdition then News.Show(LootBotNewspaperEdition.Demo(GetServerTime())) end
 end
 applyZoom(pageWidth)

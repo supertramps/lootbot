@@ -9,7 +9,7 @@ local function text(value)
     if type(value)=='number' then return tostring(value) end
 end
 function LootBotStatisticsProbe.Capture()
-    local snapshot={capturedAt=GetServerTime(),player=UnitName('player'),guid=UnitGUID('player'),entries={},populated=0}
+    local snapshot={capturedAt=GetServerTime(),player=LootBotProtocol.localPlayerName(),guid=UnitGUID('player'),entries={},populated=0}
     local version,build,_,interface=GetBuildInfo()
     snapshot.version=version; snapshot.build=build; snapshot.interface=interface
     LootBotDB=LootBotDB or {}

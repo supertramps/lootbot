@@ -7,8 +7,7 @@ local engine,roster,own=nil, {}, nil
 local publication
 local function canonical(name)
     if not name then return nil end
-    if not name:find('-',1,true) then name=name..'-'..GetRealmName():gsub('%s','') end
-    return name
+    return LootBotProtocol.canonical(name,GetRealmName())
 end
 local function members()
     roster={}
@@ -26,7 +25,7 @@ local function initialise()
     local key=GetRealmName()..':'..guild
     if engine and engine.key==key then return end
     LootBotDB.guildStatistics[key]=LootBotDB.guildStatistics[key] or {}
-    own=canonical(UnitName('player')); joined=false; nextCapture=0
+    own=canonical(LootBotProtocol.localPlayerName()); joined=false; nextCapture=0
     engine=LootBotGuildStatistics.New(LootBotDB.guildStatistics[key],{
         now=GetServerTime,player=function() return own end,
         member=function(name) return roster[canonical(name)]==true end,
@@ -68,7 +67,8 @@ function LootBotGuildStatistics.PublicationStatus()
     local text='Publisher: '..(publication.db.publisher or 'waiting for a relay character')..'.'
     if latest then text=text..' Latest paper: '..LootBotNewspaperEdition.Date(latest.edition.publishedAt)..'.'
     else text=text..' Waiting for the first printed issue.' end
-    return text
+    local count=0; for _ in pairs(engine and engine.db.checkpoints or {}) do count=count+1 end
+    return text..' Statistics received: '..count..' characters.'
 end
 function LootBotGuildStatistics.CurrentEdition()
     local now=GetServerTime()
@@ -90,6 +90,9 @@ driver:SetScript('OnEvent',function(_,event,received,message,channel,sender)
         return
     end
     if event=='CHAT_MSG_ADDON' then
+        local name=canonical(sender)
+        if name and not roster[name] and C_GuildInfo and C_GuildInfo.MemberExistsByName
+            and C_GuildInfo.MemberExistsByName(sender)==true then roster[name]=true end
         if received==prefix and engine and LootBotDB.shareStatistics~=false then engine:Receive(message,canonical(sender),channel) end
         if received==paperPrefix and publication then publication:Receive(message,canonical(sender),channel) end
     else

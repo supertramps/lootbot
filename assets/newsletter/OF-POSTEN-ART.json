@@ -1,0 +1,20 @@
+{
+  "tool": "Built-in image_gen.imagegen",
+  "specification": "../../docs/OF-Posten-SPEC.md",
+  "mode": "Edit existing artwork; preserve blank statistics panels",
+  "front": "of-front.png",
+  "inside": "of-inside.png",
+  "back": "of-back.png",
+  "welcome": "of-welcome.png",
+  "copyOverrides": [
+    "Welcome heading: Det här lär det bli tjöt om",
+    "Remove all advertisement disclaimers",
+    "No first-issue Monday promise"
+  ],
+  "landmarks": [
+    "Poseidon at Götaplatsen in Orgrimmar",
+    "Goblin tram",
+    "Älvsborgsbron"
+  ],
+  "instructions": "Use approved short copy verbatim. Keep long reference letters out. Swedish fixed copy, understated Göteborg humour. Never invent guild statistics. Production backgrounds use existing Newsletter*.png paths; renderer owns all dynamic numbers."
+}

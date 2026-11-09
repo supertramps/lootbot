@@ -1,0 +1,25 @@
+{
+  "tool": "Built-in image_gen.imagegen",
+  "style": "Warm cream aged Western newspaper, clear conventional serif headlines; normal lowercase k, no Gothic letters",
+  "pages": [
+    {
+      "source": "of-ledger.png",
+      "target": "NewsletterLedger.png",
+      "headline": "Goblinens kassabok",
+      "layout": "Two columns, spectacles and coins in bottom margin"
+    },
+    {
+      "source": "of-stories.png",
+      "target": "NewsletterStories.png",
+      "headline": "Guildens bravader",
+      "layout": "Two stacked features, boots/compass in margins, bridge at bottom"
+    },
+    {
+      "source": "of-statistics.png",
+      "target": "NewsletterStatistics.png",
+      "headline": "Veckan i siffror",
+      "layout": "Six panels, two columns three rows, tankard/hook/feather in margins"
+    }
+  ],
+  "instructions": "Headlines baked into images, no other text. All statistics rendered separately in WoW font. Match original 1086x1448 grid. Inspect actual generated rule positions before setting text coordinates."
+}
