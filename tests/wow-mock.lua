@@ -60,6 +60,9 @@ function CreateFrame(_, name, parent)
             Show=nop, ClearAllPoints=nop, SetAlpha=nop, SetBlendMode=nop, SetVertexColor=nop, AddMaskTexture=nop }
         function texture:SetColorTexture(r) self.color=r end
         function texture:SetTexture(path) self.path=path end
+        function texture:SetPoint(point,relative,relativePoint,x,y)
+            self.point=point; self.relative=relative; self.relativePoint=relativePoint; self.x=x; self.y=y
+        end
         self.textures[#self.textures+1]=texture
         return texture
     end

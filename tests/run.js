@@ -397,7 +397,7 @@ test('statistics driver shares API data without optical traffic; round minimap m
     assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterWelcome.png',1,true))
     for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do assert(label.shown==false) end
     local icon=LootBotNewsletterMinimapButton
-    assert(icon.textures[3].path=='Interface\\\\Minimap\\\\MiniMap-TrackingBorder')
+    assert(icon.icon.path:find('PeonToast.tga',1,true) and icon.icon.x==0 and icon.icon.y==0)
     clock=clock+604800
     MockTime=MockTime+604800
     LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
