@@ -9,15 +9,16 @@ local function volume(value)
     if type(value)~='number' or value~=value then return 50 end
     return math.max(0,math.min(100,math.floor(value/10+.5)*10))
 end
-function T.PlayPingSound(preview)
+function T.PlayPingSound(preview, item)
     if not settings or (not preview and not settings.sound) or not PlaySoundFile then return end
     if T.soundHandle and StopSound then StopSound(T.soundHandle,100); T.soundHandle=nil end
     local amount=volume(settings.volume)
     if amount==0 then return end
-    local _,handle=PlaySoundFile(ROOT..'Sounds\\Victory-'..amount..'.ogg','SFX')
+    local sound=item and item.kind=='level' and item.level==60 and 'MaxLevel-' or 'Victory-'
+    local _,handle=PlaySoundFile(ROOT..'Sounds\\'..sound..amount..'.ogg','SFX')
     T.soundHandle=handle
 end
-local function allowed(item) return settings.enabled and settings[item.kind or 'level']~=false end
+local function allowed(item) return settings.enabled and (item.kind or 'level')=='level' end
 local function enabled() return db and db.enabled~=false end
 local function validLevel(n) return type(n)=='number' and n>=10 and n<=60 and n%10==0 end
 local function flair(item)
@@ -176,7 +177,7 @@ local function startNext()
             -- Reserve a third line only for the max-level joke; keep the seal clear of it.
             frame.extra:SetText(item.kind=='level' and (item.level==60 and "Maybe it's time to touch some grass?" or '') or (item.detail or ''))
             frame:Show(); animate(0)
-            T.PlayPingSound(false)
+            T.PlayPingSound(false, item)
             frame:SetScript('OnUpdate',function()
                 local t=GetTime()-active.started
                 if t>=active.duration then
@@ -189,7 +190,7 @@ local function startNext()
 end
 local function enqueue(name,level,preview,details)
     local item=details or {kind='level'}
-    if (not preview and not allowed(item)) or #queue>=5 then return end
+    if item.kind~='level' or (not preview and not allowed(item)) or #queue>=5 then return end
     item.name=name:match('^([^-]+)') or name; item.level=level; item.preview=preview; item.expires=GetTime()+MAX_AGE
     queue[#queue+1]=item
     if not active then startNext() end
@@ -230,7 +231,7 @@ function T.Options()
     if not settings then return end
     if not options then
         options=CreateFrame('Frame','LootBotPopupOptions',UIParent,'BackdropTemplate')
-        options:SetSize(380,640); options:SetPoint('CENTER',UIParent,'CENTER',0,0)
+        options:SetSize(380,270); options:SetPoint('CENTER',UIParent,'CENTER',0,0)
         options:SetFrameStrata('DIALOG'); options:EnableMouse(true)
         options:SetBackdrop({bgFile='Interface\\DialogFrame\\UI-DialogBox-Background',
             edgeFile='Interface\\DialogFrame\\UI-DialogBox-Border',tile=true,tileSize=32,edgeSize=24,
@@ -238,8 +239,7 @@ function T.Options()
         local title=label(options,20,24,-24,330); title:SetTextColor(1,.82,.45); title:SetText('LootBot pings')
         local note=label(options,12,24,-52,330); note:SetTextColor(.85,.81,.72); note:SetText('Your screen and sound preferences')
         options.checks={}
-        local choices={{'enabled','Enable all pings'},{'level','Level pings'},{'item','Epic loot pings'},{'mount','First-mount pings'},
-            {'sound','Play ping sounds'},{'animation','Animate pings'}}
+        local choices={{'enabled','Enable pings'}}
         for i,entry in ipairs(choices) do
             local field=entry[1]
             local box=CreateFrame('CheckButton',nil,options,'UICheckButtonTemplate')
@@ -260,50 +260,20 @@ function T.Options()
             b:SetSize(width,26); b:SetPoint('TOPLEFT',options,'TOPLEFT',x,y); b:SetText(text); b:SetScript('OnClick',callback)
             return b
         end
-        local volumeText=label(options,12,24,-291,220); volumeText:SetTextColor(.94,.89,.78)
+        local volumeText=label(options,12,24,-122,300); volumeText:SetTextColor(.94,.89,.78)
         local slider=CreateFrame('Slider','LootBotPingVolumeSlider',options,'OptionsSliderTemplate')
-        slider:SetSize(210,18); slider:SetPoint('TOPLEFT',options,'TOPLEFT',28,-318)
+        slider:SetSize(320,18); slider:SetPoint('TOPLEFT',options,'TOPLEFT',28,-151)
         slider:SetMinMaxValues(0,100); slider:SetValueStep(10); slider:SetObeyStepOnDrag(true)
         if slider.Low then slider.Low:SetText('0%') end
         if slider.High then slider.High:SetText('100%') end
         if slider.Text then slider.Text:SetText('') end
         slider:SetScript('OnValueChanged',function(_,value)
-            settings.volume=volume(value); volumeText:SetText('Ping volume: '..settings.volume..'%')
+            settings.sound=true; settings.volume=volume(value); volumeText:SetText('Ping volume: '..settings.volume..'%')
             if T.soundHandle and StopSound then StopSound(T.soundHandle,100); T.soundHandle=nil end
         end)
         options.volume=slider
-        button('Test sound',254,-311,102,function() T.PlayPingSound(true) end)
-        options.testLevel=40
-        local menu=CreateFrame('Frame',nil,options,'BackdropTemplate')
-        menu:SetSize(158,166); menu:SetFrameStrata('TOOLTIP'); menu:EnableMouse(true)
-        menu:SetBackdrop({bgFile='Interface\\DialogFrame\\UI-DialogBox-Background',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=12})
-        local dropdown=button('Level 40  v',24,-375,158,function() if menu:IsShown() then menu:Hide() else menu:Show() end end)
-        menu:SetPoint('TOPLEFT',dropdown,'BOTTOMLEFT',0,-2)
-        for _,value in ipairs({10,20,30,40,50,60}) do
-            local choice=value
-            local b=CreateFrame('Button',nil,menu,'UIPanelButtonTemplate')
-            b:SetSize(146,24); b:SetPoint('TOPLEFT',menu,'TOPLEFT',6,-6-(choice/10-1)*26); b:SetText('Level '..choice)
-            b:SetScript('OnClick',function() options.testLevel=choice; dropdown:SetText('Level '..choice..'  v'); menu:Hide() end)
-        end
-        menu:Hide(); options:SetScript('OnHide',function() menu:Hide() end)
-        button('Preview level',198,-375,158,function() menu:Hide(); stop(); enqueue('LootTester',options.testLevel,true) end)
-        button('Epic loot',24,-412,102,function() menu:Hide(); stop(); T.PreviewItem() end)
-        button('Legendary loot',139,-412,102,function() menu:Hide(); stop(); T.PreviewLegendary() end)
-        button('First mount',254,-412,102,function() menu:Hide(); stop(); T.PreviewMount() end)
-        local hint=label(options,11,24,-449,330); hint:SetTextColor(.75,.73,.68); hint:SetText('Dummy previews stay local, even with pings off.')
-        button('Move pings',24,-481,158,T.MovePings)
-        button('Reset position',198,-481,158,function()
-            settings.position=nil
-            if frame then applyPosition(frame) end
-            if mover then applyPosition(mover) end
-        end)
-        local newsLabel=label(options,12,24,-521,330); newsLabel:SetTextColor(.94,.89,.78)
-        newsLabel:SetText('OF-Posten — provnummer med statistik')
-        button('Visa provtidning',24,-548,332,function()
-            options:Hide()
-            if LootBotNewsletterPreview then LootBotNewsletterPreview.ShowDemo('WoW') end
-        end)
-        button('Close',132,-596,116,function() options:Hide() end)
+        button('Move pings',24,-208,158,T.MovePings)
+        button('Close',238,-208,116,function() options:Hide() end)
         UISpecialFrames[#UISpecialFrames+1]='LootBotPopupOptions'
     end
     for field,box in pairs(options.checks) do box:SetChecked(settings[field]) end
@@ -314,7 +284,6 @@ function T.Receive(message,channel,sender)
     if not enabled() or channel~='GUILD' or type(sender)~='string' or type(message)~='string' then return end
     if issecretvalue and (issecretvalue(message) or issecretvalue(sender)) then return end
     if not IsInGuild() or not guildMember(sender) or key(sender)==key(P.localPlayerName()) then return end
-    if message:sub(1,3)=='I1:' or message:sub(1,3)=='M1:' then T.ReceiveExtra(message,sender); return end
     local level,stamp=message:match('^D1:(%d+):(%d+)$')
     level,stamp=tonumber(level),tonumber(stamp)
     if not validLevel(level) or not stamp or GetServerTime()-stamp>MAX_AGE or stamp-GetServerTime()>5 then return end
@@ -329,104 +298,6 @@ function T.LevelUp(level)
     settings.seen[id]=GetServerTime()
     enqueue(P.localPlayerName(),level)
     if IsInGuild() then P.sendAddon(PREFIX,'D1:'..level..':'..GetServerTime(),'GUILD') end
-end
-local function itemDetails(id,quality)
-    local info=C_Item and C_Item.GetItemInfo or GetItemInfo
-    local name,_,actualQuality,_,_,_,_,_,_,icon
-    if info then name,_,actualQuality,_,_,_,_,_,_,icon=info(id) end
-    local iconAPI=C_Item and C_Item.GetItemIconByID or GetItemIcon
-    icon=icon or (iconAPI and iconAPI(id))
-    if not name and C_Item and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(id) end
-    return {kind='item',itemId=id,quality=actualQuality or quality,detail=name or 'Epic loot',icon=icon or 134400}
-end
-function T.RefreshItem(id,success)
-    if not success then return end
-    for _,item in ipairs(queue) do
-        if item.kind=='item' and item.itemId==id then
-            local data=itemDetails(id,item.quality); item.detail=data.detail; item.icon=data.icon
-        end
-    end
-    if active and active.kind=='item' and active.itemId==id then
-        local data=itemDetails(id,active.quality); active.detail=data.detail; active.icon=data.icon
-        frame.extra:SetText(data.detail); frame.icon:SetTexture(data.icon)
-    end
-end
-function T.Loot(event)
-    if not enabled() or not event or event.test or event.quality<4 or event.quality>7 then return end
-    settings.counter=(settings.counter or 0)+1
-    local data=itemDetails(event.itemId,event.quality)
-    enqueue(P.localPlayerName(),nil,false,data)
-    if IsInGuild() then
-        P.sendAddon(PREFIX,table.concat({'I1',event.itemId,event.quality,GetServerTime(),settings.counter},':'),'GUILD')
-    end
-end
-local function mountInfo(id)
-    if C_MountJournal and C_MountJournal.GetMountInfoByID then
-        return C_MountJournal.GetMountInfoByID(id)
-    end
-end
-local function mountCount()
-    if not C_MountJournal or not C_MountJournal.GetMountIDs or not C_MountJournal.GetMountInfoByID then return end
-    local ids=C_MountJournal.GetMountIDs()
-    if type(ids)~='table' or #ids==0 then return end -- unavailable is not zero ownership
-    local count=0
-    for _,id in ipairs(ids) do
-        local name,_,_,_,_,_,_,_,_,_,collected=mountInfo(id)
-        if not name then return end
-        if collected then count=count+1 end
-    end
-    return count
-end
-function T.MountBaseline()
-    if not settings then return end
-    local count=mountCount()
-    settings.mountBaselineKnown=count~=nil
-    if count and count>0 then settings.mountEverOwned=true end
-end
-function T.NewMount(id)
-    if not settings or settings.mountEverOwned then return end
-    local count=mountCount()
-    local name,_,icon,_,_,_,_,_,_,_,collected=mountInfo(id)
-    if not count or not collected then return end
-    local first=settings.mountBaselineKnown and count==1
-    settings.mountEverOwned=true
-    if not first or not enabled() then return end
-    enqueue(P.localPlayerName(),nil,false,{kind='mount',detail=name,icon=icon})
-    if IsInGuild() then P.sendAddon(PREFIX,'M1:'..id..':'..GetServerTime(),'GUILD') end
-end
-function T.ReceiveExtra(message,sender)
-    local id,quality,stamp,sequence=message:match('^I1:(%d+):(%d+):(%d+):(%d+)$')
-    local kind='item'
-    if not id then id,stamp=message:match('^M1:(%d+):(%d+)$'); kind='mount' end
-    id,stamp,quality=tonumber(id),tonumber(stamp),tonumber(quality)
-    if not id or id<1 or id>10000000 or not stamp or GetServerTime()-stamp>MAX_AGE or stamp-GetServerTime()>5 then return end
-    if kind=='item' and (not quality or quality<4 or quality>7) then return end
-    local identity=kind=='mount' and (key(sender)..':first-mount') or (key(sender)..':'..message)
-    if settings.seen[identity] then return end
-    settings.seen[identity]=GetServerTime()
-    local details
-    if kind=='item' then details=itemDetails(id,quality)
-    else
-        local name,_,icon=mountInfo(id)
-        details={kind='mount',detail=name or 'A new travelling companion',icon=icon or 'Interface\\Icons\\Ability_Mount_RidingHorse'}
-    end
-    enqueue(sender,nil,false,details)
-end
-function T.PreviewItem()
-    -- Use a familiar epic weapon for the ordinary loot example.
-    local data=itemDetails(19364,4)
-    if data.detail=='Epic loot' then data.detail='Ashkandi, Greatsword of the Brotherhood'; data.icon='Interface\\Icons\\INV_Sword_50' end
-    enqueue('LootTester',nil,true,data)
-end
-function T.PreviewMount()
-    enqueue('LootTester',nil,true,{kind='mount',detail='Brown Wolf',icon='Interface\\Icons\\Ability_Mount_BlackDireWolf'})
-end
-function T.PreviewLegendary()
-    local data=itemDetails(19019,5)
-    if data.detail=='Epic loot' then
-        data.detail='Thunderfury, Blessed Blade of the Windseeker'; data.icon='Interface\\Icons\\INV_Sword_39'
-    end
-    enqueue('LootTester',nil,true,data)
 end
 function T.Command(command)
     if command=='options' then T.Options(); return true end
@@ -461,19 +332,21 @@ driver:SetScript('OnEvent',function(_,event,...)
         LootBotDB.characters[guid]=LootBotDB.characters[guid] or {}; db=LootBotDB.characters[guid]
         db.popups=db.popups or {}; settings=db.popups
         settings.enabled=settings.enabled~=false; settings.animation=settings.animation~=false
-        settings.level=settings.level~=false; settings.item=settings.item~=false; settings.mount=settings.mount~=false
+        settings.level=true; settings.item=false; settings.mount=false
         settings.sound=settings.sound==true -- quiet by default; preview uses the same preference
         settings.volume=volume(settings.volume)
+        if not settings.simpleOptions then
+            if not settings.sound then settings.volume=0 end
+            settings.simpleOptions=true
+        end
+        settings.sound=true
         settings.seen=settings.seen or {}
         for id,stamp in pairs(settings.seen) do
             if type(stamp)~='number' or GetServerTime()-stamp>30*86400 then settings.seen[id]=nil end
         end
         refreshRoster(); C_ChatInfo.RegisterAddonMessagePrefix(PREFIX)
-        T.MountBaseline()
     elseif event=='GUILD_ROSTER_UPDATE' or event=='PLAYER_GUILD_UPDATE' then refreshRoster()
     elseif event=='PLAYER_LEVEL_UP' then T.LevelUp(...)
-    elseif event=='NEW_MOUNT_ADDED' then T.NewMount(...)
-    elseif event=='GET_ITEM_INFO_RECEIVED' then T.RefreshItem(...)
     elseif event=='CHAT_MSG_ADDON' then
         local prefix,message,channel,sender=...
         if prefix==PREFIX then T.Receive(message,channel,sender) end
@@ -482,6 +355,3 @@ end)
 for _,event in ipairs({'PLAYER_LOGIN','PLAYER_LEVEL_UP','CHAT_MSG_ADDON','GUILD_ROSTER_UPDATE','PLAYER_GUILD_UPDATE'}) do
     driver:RegisterEvent(event)
 end
-driver:RegisterEvent('GET_ITEM_INFO_RECEIVED')
--- Era clients without a mount journal must still load the rest of LootBot.
-if C_MountJournal and C_MountJournal.GetMountIDs then driver:RegisterEvent('NEW_MOUNT_ADDED') end

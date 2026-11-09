@@ -139,7 +139,7 @@ test('level popups validate fresh guild milestones, deduplicate, preview locally
   v.close();
 });
 
-test('minimap routes left to newspaper, right to options; dropdown previews selected level locally', () => {
+test('minimap routes left to newspaper, right to minimal ping options', () => {
   const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   for(const file of ['LevelToast.lua','LootBot.lua','NewsletterPreview.lua'])
     v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot',file),'utf8'));
@@ -157,18 +157,14 @@ test('minimap routes left to newspaper, right to options; dropdown previews sele
       end
     end
     local sent=0; C_ChatInfo.SendAddonMessage=function() sent=sent+1 end
-    find(LootBotPopupOptions,'Level 40  v').scripts.OnClick()
-    find(LootBotPopupOptions,'Level 60').scripts.OnClick()
-    find(LootBotPopupOptions,'Preview level').scripts.OnClick()
-    assert(LootBotLevelToastFrame.message.text=='reached level 60!')
-    assert(LootBotLevelToastFrame.name.text=='LootTester' and sent==0)
-    find(LootBotPopupOptions,'Legendary loot').scripts.OnClick()
-    assert(LootBotLevelToastFrame.message.text=='looted a legendary!' and sent==0)
+    assert(LootBotPopupOptions.checks.enabled)
+    assert(find(LootBotPopupOptions,'Move pings'))
+    assert(not find(LootBotPopupOptions,'Preview level'))
+    assert(not find(LootBotPopupOptions,'Legendary loot'))
+    assert(not find(LootBotPopupOptions,'Visa provtidning'))
+    SlashCmdList.LOOTBOT('popup test 60')
+    assert(LootBotLevelToastFrame.message.text=='reached level 60!' and sent==0)
     SlashCmdList.LOOTBOT('options'); assert(LootBotPopupOptions:IsShown())
-    local choice
-    LootBotNewsletterPreview.ShowDemo=function(style) choice=style end
-    find(LootBotPopupOptions,'Visa provtidning').scripts.OnClick()
-    assert(choice=='WoW' and sent==0 and not LootBotPopupOptions:IsShown())
   `); v.close();
 });
 

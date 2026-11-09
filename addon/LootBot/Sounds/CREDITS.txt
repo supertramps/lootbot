@@ -3,3 +3,6 @@ astralsynthesizer-11l-victory_trumpet-1749704498589-358767_A_major_bpm_112 (mp3c
 The project owner supplied this file and stated that it is free to use.
 Converted to Ogg Vorbis; ten attenuated versions provide 10%-100% ping volume.
 No pitch, speed or composition changes. Source filename retained here for attribution.
+
+Level 60: user-supplied freesound_community-dramatic-horn-44005.mp3.
+Converted to MaxLevel-10.ogg through MaxLevel-100.ogg with volume attenuation only.

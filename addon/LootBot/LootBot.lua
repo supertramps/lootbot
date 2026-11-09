@@ -77,7 +77,6 @@ local function recordLoot(data)
     local testing=LootBotLocalTestSettings and LootBotLocalTestSettings.allLoot==true or false
     if not testing and (quality<RARE or quality<effectiveQuality()) then return true end
     local recorded=relay:record({kind='loot',itemId=data.itemId,quality=quality,quantity=data.quantity,itemName=data.itemName,test=testing})
-    if LootBotLevelToast then LootBotLevelToast.Loot(recorded) end
     return true
 end
 local function loot(message)
