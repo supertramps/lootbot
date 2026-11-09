@@ -17,7 +17,10 @@ function N.PublicationDate(edition,timestamp)
     edition.publishedAt=timestamp
     for _,page in ipairs(edition.pages) do
         page.fields.edition='UTGIVEN '..N.Date(timestamp)..'  |  ORIGINAL FORMALITIES  |  VECKANS NUMMER'
-        if page.fields.footer then page.fields.footer=page.fields.footer:gsub(previous,N.Date(timestamp)) end
+        if page.fields.footer then
+            local datePattern=previous:gsub('(%W)','%%%1')
+            page.fields.footer=page.fields.footer:gsub(datePattern,N.Date(timestamp))
+        end
     end
 end
 local function rows(records,id,absolute)
@@ -80,6 +83,13 @@ local function article(metric,list)
     local top=list[1]
     return {title=metric[2],value=string.format('%.0f',top.value),summary=board(list)..'\n\n'..metric[3]..' i detta nummer.',body=top.name..' noterade '..string.format('%.0f',top.value)..' '..metric[3]..'.\n\n'..board(list)}
 end
+local editorial=table.concat({
+    "Det är resan som är målet, så ta't lugnt tjabo.",
+    'Det är så mycket folk i Barrens att man får köa för att slå ihjäl en zebra. Medelåldern verkar va långt över trettio nu för tiden. Förr sa folk ”en quest till”. Nu säger de ”en quest till, sen måste jag lägga ungarna”.',
+    'En bartender på Port Arthur överhörde en överförfriskad tauren berätta att han sett en enorm svart drake flyga över Mulgore. Den var på väg mot kärren i Dustwallow, sa han. När han berättade det igen vid stängning hade draken hunnit bli dubbelt så stor.',
+    'Ha d gött. Glenn.',
+},'\n\n')
+
 function N.Build(edition,records,db,week,now)
     edition.publishedAt=MONDAY+(week+1)*WEEK
     local gold,repairs,pvp,levels=rows(records,900001,true),rows(records,900003),rows(records,381),rows(records,900002,true)
@@ -103,12 +113,6 @@ function N.Build(edition,records,db,week,now)
     local second=active[week%math.max(1,#active)+1]
     local third=active[(week+1)%math.max(1,#active)+1]
     if second==third then third=nil end
-    local brief={}
-    if pvp[1] then brief[#brief+1]='STRID UTE I VÄRLDEN\n'..pvp[1].name..' - '..pvp[1].value..' ärofyllda segrar' end
-    if wealth then brief[#brief+1]='GÔTT OM GULD\n'..gold[1].name..' - '..N.Money(gold[1].value) end
-    if race then brief[#brief+1]='GUILDENS SVETTIGASTE\n'..levels[1].name..' - nivå '..levels[1].value end
-    local participants=0; for _ in pairs(records) do participants=participants+1 end
-    if #brief==0 then brief[1]=participants..' rapporterande karaktärer.\n\nVi trycker det som hänt. Stilla räknare får vila.' end
     local headlines={
  [60]='%s dog %s gånger. På det igen.',[114]='%s föll mot sin död %s gånger.',
  [115]='%s brann upp %s gånger.',[112]='%s drunknade %s gånger.',[594]='Hogger fällde %s %s gånger.',
@@ -123,41 +127,31 @@ function N.Build(edition,records,db,week,now)
     if #active==0 and not wealth and not race and #pvp==0 and #rows(records,193)==0 and #rows(records,189)==0 then headline='En lugn vecka. Det händer la ibland.' end
     if pvp[1] and week%2==0 then headline=pvp[1].name..' tog '..pvp[1].value..' ärofyllda segrar ute i världen.' end
     local story={
-        [60]='%s dog %s gånger. Kyrkogårdsvakten börjar känna igen ansiktet.',
+        [60]='%s dog %s gånger. Kyrkogårdsvakten vinkade igenkännande på sista varvet.',
         [114]='%s föll mot sin död %s gånger. Genvägen blev visst en omväg.',
-        [98]='%s klarade %s quest. Nån får la göra jobbet.',
+        [98]='%s klarade %s quest. Questgivarna stod redan i kö med varsin ny lapp.',
         [341]='%s fick med sig %s episka fynd hem. Gôtt om plats i påsarna behövdes.',
         [1518]='%s drog upp %s fiskar. Vi frågar inte hur länge det tog.',
         [108]='%s dödade %s smådjur. Djurlivet avböjer att kommentera.',
-        [193]='%s satte nytt rekord med en träff på %s. En enda smäll, inte veckans totalskada.',
-        [189]='%s satte nytt läkningsrekord på %s. En enda läkning, inte veckans totalsumma.'}
+        [193]='%s satte nytt rekord med en träff på %s. Det hördes ända bort till värdshuset.',
+        [189]='%s satte nytt läkningsrekord på %s. Den som låg i gruset fick upp och springa igen.'}
     local spot=edition.spotlight
-    local main=spot and string.format(story[spot.id] or '%s noterade %s i veckans utvalda gren.',spot.name,string.format('%.0f',spot.value))
-        or 'Lite lugnare i spalterna. Redaktionen tar gärna emot tips innan pressen går.'
-    if pvp[1] and week%2==0 then main=pvp[1].name..' ledde striderna ute i världen med '..pvp[1].value..'.' end
+    local main=spot and string.format(story[spot.id] or headlines[spot.id] or '%s noterade %s. Det får vi la skriva om.',spot.name,string.format('%.0f',spot.value))
+        or 'Budet från Barrens kom in med damm i skägget och noll nyheter. Han tog ändå betalt för resan.'
+    if pvp[1] and week%2==0 then main=pvp[1].name..' ledde striderna ute i världen med '..pvp[1].value..' segrar. Vägskylten mot Mulgore har fått sig en ny buckla.' end
 
     local front={name='Förstasidan',layout=week%2==0 and 'front' or 'frontLedger',texture=week%2==0 and 'NewsletterFront1.png' or 'NewsletterFront2.png',fields={
         masthead='OF-Posten',edition=dateLine(edition),headline=headline,byline='FRÅN GUILDEN  /  VECKAN SOM GICK',lead=main,
         caption=week%2==0 and 'En stilla förmiddag på Götaplatsen i Orgrimmar.' or 'Ordning på guldet. Kvitto medtages.',
-        briefTitle='KORT FRÅN GUILDEN',brief=table.concat(brief,'\n\n'),
+        briefTitle='REDAKTÖREN HAR ORDET',brief=editorial,
         leftTitle=second and second.title or 'INNAN DU GÅR',leftBody=second and second.summary or tips[week%#tips+1],
         middleTitle=third and third.title or 'ATT TÄNKA PÅ',middleBody=third and third.summary or tips[(week+1)%#tips+1],
         footer='OF-Posten  |  '..N.Date(edition.publishedAt)
     }}
     edition.pages={front}
-    local printedEditorTip=false
     local function feature(name,headline,sections,intro)
         if #sections==0 then return end
         local one,two=sections[1],sections[2]
-        if not two and not printedEditorTip then
-            two={title='REDAKTÖREN HAR ORDET',body=table.concat({
-                "Det är resan som är målet, så ta't lugnt tjabo.",
-                'Det är så mycket folk i Barrens att man får köa för att slå ihjäl en zebra. Medelåldern verkar va långt över trettio nu för tiden. Förr sa folk ”en quest till”. Nu säger de ”en quest till, sen måste jag lägga ungarna”.',
-                'En bartender på Port Arthur överhörde en överförfriskad tauren berätta att han sett en enorm svart drake flyga över Mulgore. Den var på väg mot kärren i Dustwallow, sa han. När han berättade det igen vid stängning hade draken hunnit bli dubbelt så stor.',
-                'Ha d gött. Glenn.',
-            },'\n\n')}
-            printedEditorTip=true
-        end
         edition.pages[#edition.pages+1]={name=name,layout=name=='Goblinens kassabok' and 'dataLedger' or 'dataStories',texture='NewsletterInside.png',fields={
             masthead=name,edition=dateLine(edition),headline=headline,intro=intro,
             leftTitle=one.title,leftValue=one.value or '',leftBody=one.body,
@@ -285,6 +279,7 @@ N.Layouts.front={
  p('edition',40,187,975,29,17,true),p('headline',40,240,975,115,38,false,true),
  p('byline',40,375,635,25,16),p('lead',40,428,225,425,19),
  p('briefTitle',722,425,295,38,23,false,true),p('brief',722,475,295,350,21),
+ p('briefSignature',722,780,295,23,17),
  p('leftTitle',40,1000,305,40,23,false,true),p('leftBody',40,1050,305,175,18),
  p('middleTitle',385,1000,295,40,23,false,true),p('middleBody',385,1050,295,175,18),
  p('footer',35,1462,980,20,12,true)

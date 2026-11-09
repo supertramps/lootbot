@@ -208,9 +208,21 @@ renderPage=function()
     activeFields={}
     local printedBackground=({professions='NewsletterProfessions.png',dataLedger='NewsletterLedger.png',dataStories='NewsletterStories.png',dataSix='NewsletterStatistics.png'})[page.layout]
     local layout=LootBotNewspaperEdition.Layouts[page.layout]
+    local editorial=page.fields.briefTitle=='REDAKTÖREN HAR ORDET'
+    local editorialBody,editorialSignature
+    if editorial then
+        -- Keep the saved copy intact while reserving a line for the sign-off.
+        editorialBody,editorialSignature=(page.fields.brief or ''):match('^(.*)\n\n(Ha d gött%. Glenn%.)$')
+    end
     for i,slot in ipairs(layout) do
-        -- The editorial has no figure on the left, so its copy can use the full row.
-        if page.layout=='dataStories' and slot.key=='rightBody' and page.fields.rightTitle=='REDAKTÖREN HAR ORDET' then
+        if editorial then
+            if slot.key=='briefTitle' then
+                slot={key=slot.key,x=slot.x,y=slot.y,w=slot.w,h=slot.h,size=19}
+            elseif slot.key=='brief' then
+                slot={key=slot.key,x=slot.x,y=slot.y-10,w=slot.w,h=slot.h+6,size=16}
+            end
+        elseif page.layout=='dataStories' and slot.key=='rightBody' and page.fields.rightTitle=='REDAKTÖREN HAR ORDET' then
+            -- Older issues ran the editorial across the interior row.
             slot={key=slot.key,x=95,y=slot.y,w=896,h=slot.h,size=21}
         end
         local field=pageFields[i]
@@ -220,6 +232,8 @@ renderPage=function()
         field.slot=slot
         field.label:SetJustifyH(slot.center and 'CENTER' or 'LEFT');field.label:SetJustifyV('TOP')
         local text=page.fields[slot.key] or ''
+        if slot.key=='brief' and editorialBody then text=editorialBody end
+        if slot.key=='briefSignature' then text=editorialSignature or '' end
         -- Suppress redundant captions in already-published issues too.
         if page.layout=='professions' and text:find('Ingen rapporterad nivå än.',1,true)==1 then text='Ingen rapporterad nivå än.' end
         field.label:SetTextColor(ink[1],ink[2],ink[3]);field.label:SetText(printedBackground and slot.key=='masthead' and '' or text)
@@ -329,8 +343,9 @@ function News.Show(previewEdition)
     navigation:SetSize(fitWidth,NAV_HEIGHT)
     News.previewEdition=previewEdition
     News.Refresh()
-    frame:Show(); badgeText:Hide()
-    if News.editionId then
+    frame:Show()
+    if not previewEdition and News.editionId then
+        badgeText:Hide()
         LootBotDB=LootBotDB or {}; LootBotDB.newspaperRead=LootBotDB.newspaperRead or {}
         LootBotDB.newspaperRead[UnitGUID('player')]=News.editionId
     end

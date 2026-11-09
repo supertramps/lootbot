@@ -22,6 +22,12 @@ local capped={}
 for name,r in pairs(records) do capped[name]={first=r.first,last=r.last,start={[900002]=60},finish={[900002]=60}} end
 local quiet=G.Edition({weeks={[week]=capped}},published+10)
 assert(#quiet.pages==2 and quiet.pages[1].fields.headline=='En lugn vecka. Det händer la ibland.')
+for _,paper in ipairs({edition,quiet}) do
+    assert(paper.pages[1].fields.briefTitle=='REDAKTÖREN HAR ORDET')
+    assert(paper.pages[1].fields.brief:find('Ha d gött. Glenn.',1,true))
+    assert(not paper.pages[1].fields.lead:find('sparade avläsningar',1,true))
+    for i=2,#paper.pages do assert(paper.pages[i].fields.rightTitle~='REDAKTÖREN HAR ORDET') end
+end
 local unchanged={weeks={[week]=records,[week-1]=records}}
 for _,r in pairs(records) do r.start[900001]=r.finish[900001] end
 local same=G.Edition(unchanged,published+10)

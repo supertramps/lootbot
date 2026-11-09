@@ -1,9 +1,15 @@
--- One immutable edition per week, copied through authenticated guild addon chat.
+-- Immutable editions copied through authenticated guild addon chat.
 -- Guild members are trusted peers; the checksum detects corruption, not forgery.
 LootBotNewspaperPublication={}
 local P=LootBotNewspaperPublication
 local WEEK,MONDAY,CHUNK=604800,345600,180
 local textures={dataLedger='NewsletterInside.png',dataStories='NewsletterInside.png',dataSix='NewsletterInside.png',professions='NewsletterInside.png',front='NewsletterFront1.png',frontLedger='NewsletterFront2.png',inside='NewsletterInside.png',back='NewsletterBack.png'}
+local function validIssue(id,now)
+    if not id or id%1~=0 then return false end
+    if id>=1000000000 then return id>=now-4*WEEK and id<=now+120 end
+    local week=LootBotGuildStatistics.Week(now)
+    return id>=week-4 and id<week
+end
 local function name(v) return type(v)=='string' and #v>0 and #v<=100 and not v:find('[|;%c]') end
 local function hash(v) return string.format('%.0f',LootBotProtocol.adler32(v)%4294967296.0) end
 local function escape(v) return (tostring(v):gsub('[%%%z\1-\31\127-\255]',function(c) return string.format('%%%02X',c:byte()) end)) end
@@ -21,13 +27,16 @@ local function split(line)
 end
 function P.Encode(edition,publisher,printedAt)
     if edition.demo or edition.launch or not name(publisher) then return nil end
-    local lines={table.concat({'NP1',edition.id,MONDAY+(edition.id+1)*WEEK,printedAt,escape(publisher)},'\t')}
+    local format=edition.manual and 'NP2' or 'NP1'
+    local scheduled=edition.manual and printedAt or MONDAY+(edition.id+1)*WEEK
+    local lines={table.concat({format,edition.id,scheduled,printedAt,escape(publisher)},'\t')}
     for _,page in ipairs(edition.pages or {}) do
         lines[#lines+1]=table.concat({'P',escape(page.name),page.layout,page.texture},'\t')
         local keys={};for key in pairs(page.fields) do keys[#keys+1]=key end;table.sort(keys)
         for _,key in ipairs(keys) do lines[#lines+1]='F\t'..key..'\t'..escape(page.fields[key]) end
     end
-    local people={};for player in pairs(edition.readings or {}) do people[#people+1]=player end;table.sort(people)
+    local readings=not edition.manual and edition.readings or {}
+    local people={};for player in pairs(readings or {}) do people[#people+1]=player end;table.sort(people)
     for _,player in ipairs(people) do
         local ids={};for id in pairs(edition.readings[player]) do ids[#ids+1]=id end;table.sort(ids)
         local values={};for _,id in ipairs(ids) do values[#values+1]=id..'='..string.format('%.0f',edition.readings[player][id]) end
@@ -46,9 +55,12 @@ function P.Decode(body,now)
         local f=split(line);if not f then return nil end
         if not header then
             local week,scheduled,printed=tonumber(f[2]),tonumber(f[3]),tonumber(f[4])
-            if #f~=5 or f[1]~='NP1' or not week or week%1~=0 or week<LootBotGuildStatistics.Week(now)-4 or week>=LootBotGuildStatistics.Week(now)
-                or scheduled~=MONDAY+(week+1)*WEEK or not printed or printed<scheduled or printed>=scheduled+WEEK or printed>now+120 or not name(f[5]) then return nil end
-            edition={id=week,scheduledAt=scheduled,publishedAt=printed,publisher=f[5],pages={},readings={}};header=true
+            if #f~=5 or not validIssue(week,now) or not printed or printed>now+120 or not name(f[5]) then return nil end
+            local manual=f[1]=='NP2'
+            if manual then
+                if week<1000000000 or week~=printed or scheduled~=printed then return nil end
+            elseif f[1]~='NP1' or week>=1000000000 or scheduled~=MONDAY+(week+1)*WEEK or printed<scheduled or printed>=scheduled+WEEK then return nil end
+            edition={id=week,scheduledAt=scheduled,publishedAt=printed,publisher=f[5],pages={},readings={},manual=manual};header=true
         elseif f[1]=='P' then
             if #f~=4 or #edition.pages>=8 or #f[2]>60 or textures[f[3]]~=f[4] then return nil end
             if #edition.pages==0 and f[3]~='front' and f[3]~='frontLedger' then return nil end
@@ -57,7 +69,7 @@ function P.Decode(body,now)
             if #f~=3 or not page or #f[2]>32 or not f[2]:match('^[A-Za-z]+$') or #f[3]>2048 or page.fields[f[2]]~=nil then return nil end
             page.fields[f[2]]=f[3]
         elseif f[1]=='V' then
-            if #f~=3 or not name(f[2]) or edition.readings[f[2]] then return nil end
+            if edition.manual or #f~=3 or not name(f[2]) or edition.readings[f[2]] then return nil end
             local values,count={},0
             for pair in f[3]:gmatch('[^,]+') do
                 local id,value=pair:match('^(%d+)=(%d+)$');id,value=tonumber(id),tonumber(value)
@@ -74,12 +86,12 @@ function P.New(db,api)
     db.issues=db.issues or {}
     db.knownHashes=db.knownHashes or {}
     local self={db=db,api=api,controls={},broadcast={},streams={},pending={},requests={},hello=-100,role=-100,lastSend=-100,
-        currentWeek=LootBotGuildStatistics.Week(api.now()),notBefore=api.now()+60,lastData=api.now(),revision=api.revision(),cursor=0}
+        cursor=0}
     local function clock() return api.clock and api.clock() or api.now() end
     function self:Prune()
-        local current=LootBotGuildStatistics.Week(api.now())
-        for week in pairs(db.issues) do if week<current-4 or week>=current then db.issues[week]=nil end end
-        for week in pairs(db.knownHashes) do if week<current-4 or week>=current then db.knownHashes[week]=nil end end
+        local now=api.now()
+        for week in pairs(db.issues) do if not validIssue(week,now) then db.issues[week]=nil end end
+        for week in pairs(db.knownHashes) do if not validIssue(week,now) then db.knownHashes[week]=nil end end
         for key,p in pairs(self.pending) do if api.now()-p.at>600 then self.pending[key]=nil end end
     end
     function self:Control(message,target,delay)
@@ -102,6 +114,25 @@ function P.New(db,api)
         db.issues[edition.id]={payload=body,hash=expectedHash,edition=edition}
         if not db.lastPrintedWeek or edition.id>db.lastPrintedWeek then db.lastPrintedWeek=edition.id;db.printedReadings=edition.readings end
         if api.changed then api.changed() end
+        return true
+    end
+    function self:Publish(draft)
+        local now=api.now()
+        if not api.canPublish() or (db.publisher and db.publisher~=api.player()) then return false end
+        local latest=self:Latest()
+        if latest and latest.edition.id>=now then return false end
+        draft.id=now
+        draft.manual=true
+        LootBotNewspaperEdition.PublicationDate(draft,now)
+        local body=P.Encode(draft,api.player(),now)
+        local digest=body and hash(body)
+        if not body or not self:Store(body,digest,api.player()) then return false end
+        self.broadcast={}
+        local total=math.ceil(#body/CHUNK)
+        for i=1,total do
+            self.broadcast[i]='D;'..draft.id..';'..digest..';'..i..';'..total..';'..body:sub((i-1)*CHUNK+1,i*CHUNK)
+        end
+        self:Offer()
         return true
     end
     function self:Offer(target)
@@ -131,7 +162,7 @@ function P.New(db,api)
         local publisher,w,h=message:match('^O;([^;]+);(%d+);(%d+)$')
         if publisher and (channel=='WHISPER' or channel=='GUILD') then
             w=tonumber(w)
-            if not name(publisher) or (db.publisher and db.publisher~=publisher) or w<LootBotGuildStatistics.Week(api.now())-4 or w>=LootBotGuildStatistics.Week(api.now()) or db.issues[w] then return end
+            if not name(publisher) or (db.publisher and db.publisher~=publisher) or not validIssue(w,api.now()) or db.issues[w] then return end
             if db.knownHashes[w] and db.knownHashes[w]~=h then return end
             db.knownHashes[w]=h
             if self.downloading and api.now()-self.downloading.at<30 then return end
@@ -158,7 +189,7 @@ function P.New(db,api)
         local week,digest,i,total,part=message:match('^D;(%d+);(%d+);(%d+);(%d+);(.*)$')
         week,i,total=tonumber(week),tonumber(i),tonumber(total)
         if not week or (channel~='GUILD' and channel~='WHISPER') or total<1 or total>334 or i<1 or i>total or #part>CHUNK then return end
-        if week<LootBotGuildStatistics.Week(api.now())-4 or week>=LootBotGuildStatistics.Week(api.now()) then return end
+        if not validIssue(week,api.now()) then return end
         if channel=='GUILD' and sender~=db.publisher and not api.knownRelay(sender) then return end
         if channel=='WHISPER' and (not self.downloading or self.downloading.sender~=sender or self.downloading.week~=week or self.downloading.hash~=digest) then return end
         if channel=='WHISPER' then self.downloading.at=api.now() end
@@ -182,27 +213,12 @@ function P.New(db,api)
     end
     function self:Tick()
         self:Prune()
-        local now=api.now();local week=LootBotGuildStatistics.Week(now)
-        if week~=self.currentWeek then self.currentWeek=week;self.notBefore=now+60;self.lastData=now end
-        if api.revision()~=self.revision then self.revision=api.revision();self.lastData=now end
+        local now=api.now()
         if self.downloading and now-self.downloading.at>=30 then self.downloading=nil;self.hello=-100 end
         if now-self.hello>=60 then self:Join() end
         if api.canPublish() and (not db.publisher or db.publisher==api.player()) then
             db.publisher=api.player()
             if now-self.role>=30 then self.role=now;self:Control('R') end
-            if (not api.ready or api.ready()) and not db.issues[week-1] and not db.knownHashes[week-1] and now>=self.notBefore and (now-self.lastData>=15 or now>=self.notBefore+540) then
-                local draft,readings=api.build(db.printedReadings or {})
-                if draft and not draft.launch and draft.id==week-1 and not draft.demo then
-                    draft.readings=readings or {}
-                    if LootBotNewspaperEdition then LootBotNewspaperEdition.PublicationDate(draft,now) end
-                    local body=P.Encode(draft,api.player(),now)
-                    local digest=body and hash(body)
-                    if body and self:Store(body,digest,api.player()) then
-                        local total=math.ceil(#body/CHUNK)
-                        for i=1,total do self.broadcast[#self.broadcast+1]='D;'..draft.id..';'..digest..';'..i..';'..total..';'..body:sub((i-1)*CHUNK+1,i*CHUNK) end
-                    end
-                end
-            end
         end
         if clock()-self.lastSend<0.5 then return end
         for i,control in ipairs(self.controls) do

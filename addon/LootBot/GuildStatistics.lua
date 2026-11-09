@@ -6,6 +6,20 @@ function G.Week(t) return math.floor((t-MONDAY)/WEEK) end
 local publicationIds={94,281,346,347,349,353,1519,1524,1527,1532,1535,1536,1537,1538,1541,1542,1544,60,98,107,108,112,114,115,189,193,319,320,336,341,345,381,594,1042,1044,1047,1065,1066,1487,1518,900001,900002,900003}
 local function valid(v) return type(v)=='number' and v==v and v>=0 and v<=1e15 end
 local function cleanName(v) return type(v)=='string' and #v<=100 and not v:find('[|;=,%c]') end
+function G.NewspaperValues(snapshot)
+    local values={}
+    if not snapshot then return values end
+    for _,entry in ipairs(snapshot.entries or {}) do
+        if not entry.hidden and valid(entry.id) and valid(entry.numericValue) then values[entry.id]=entry.numericValue end
+    end
+    for key,id in pairs({money=900001,level=900002,repairs=900003}) do
+        local value=snapshot.profile and snapshot.profile[key]
+        if valid(value) then values[id]=value end
+    end
+    local selected={}
+    for _,id in ipairs(publicationIds) do selected[id]=values[id] end
+    return selected
+end
 function G.New(db,api)
     db.weeks=db.weeks or {}
     db.checkpoints=db.checkpoints or {}
@@ -59,10 +73,13 @@ function G.New(db,api)
         local changed=false
         if first<old.first then old.first=first; old.start=start; changed=true end
         if last>old.last then old.last=last; old.finish=finish; changed=true end
+        for id,value in pairs(start) do
+            if old.start[id]==nil then old.start[id]=value;changed=true end
+        end
         if changed then db.revision=(db.revision or 0)+1 end
         return changed
     end
-    function self:Queue(name,week,record,target)
+    function self:Queue(name,week,record,target,requestToken)
         local ids={}; for id in pairs(record.start) do if record.finish[id] then ids[#ids+1]=id end end
         table.sort(ids)
         local parts={}
@@ -70,7 +87,7 @@ function G.New(db,api)
         if #parts==0 then return end
         local payload=table.concat(parts,',')
         self.sequence=self.sequence+1
-        local token=tostring(api.now())..'-'..self.sequence
+        local token=requestToken or (tostring(api.now())..'-'..self.sequence)
         local header=table.concat({'D',token,name,week,record.first,record.last},';')..';'
         local size=255-#header-9
         if size<60 then return end
@@ -153,7 +170,7 @@ function G.New(db,api)
             if not id or start[id] then return end
             start[id]=a; finish[id]=b
         end
-        self:Merge(name,w,f,l,start,finish)
+        return self:Merge(name,w,f,l,start,finish)
     end
     function self:Join()
         self.seeking=true; api.send('HELLO')
@@ -168,9 +185,9 @@ end
 
 -- Publishing compares known readings with the last printed readings, not just
 -- calendar buckets. A late historical report can then enter the next issue.
-function G.PublicationDraft(db,now,printed,member)
+function G.PublicationDraft(db,now,printed,member,manualFrom)
     local current=G.Week(now)
-    if (db.startedWeek or current)>=current then return G.Launch(now) end
+    if not manualFrom and (db.startedWeek or current)>=current then return G.Launch(now) end
     local records,readings,previous={},{},{}
     for player,checkpoint in pairs(db.checkpoints or {}) do
         if not member or member(player) then
@@ -190,12 +207,16 @@ function G.PublicationDraft(db,now,printed,member)
                     finish[id]=value
                 end
             end
-            records[player]={first=now,last=now,start=start,finish=finish};readings[player]=finish
+            if next(finish) then
+                records[player]={first=now,last=now,start=start,finish=finish};readings[player]=finish
+            end
         end
     end
     for player,values in pairs(printed) do previous[player]={start=values,finish=values,first=now,last=now} end
     local history={startedWeek=db.startedWeek,weeks={[current-1]=records}}
-    if LootBotGuildBankDonations then history.bankDonations=LootBotGuildBankDonations.Report(MONDAY+(current-1)*WEEK,MONDAY+current*WEEK) end
+    if LootBotGuildBankDonations then
+        history.bankDonations=LootBotGuildBankDonations.Report(manualFrom or MONDAY+(current-1)*WEEK,manualFrom and now or MONDAY+current*WEEK)
+    end
     if next(previous) then history.weeks[current-2]=previous end
     return G.Edition(history,now),readings
 end

@@ -8,12 +8,14 @@ local function text(value)
     if type(value)=='string' then return value:sub(1,2048) end
     if type(value)=='number' then return tostring(value) end
 end
-function LootBotStatisticsProbe.Capture()
+function LootBotStatisticsProbe.Capture(save)
     local snapshot={capturedAt=GetServerTime(),player=LootBotProtocol.localPlayerName(),guid=UnitGUID('player'),entries={},populated=0}
     local version,build,_,interface=GetBuildInfo()
     snapshot.version=version; snapshot.build=build; snapshot.interface=interface
-    LootBotDB=LootBotDB or {}
-    LootBotDB.statisticsProbe=snapshot
+    if save~=false then
+        LootBotDB=LootBotDB or {}
+        LootBotDB.statisticsProbe=snapshot
+    end
     if LootBotNewsletterMetrics then snapshot.profile=LootBotNewsletterMetrics.Profile() end
     for _,name in ipairs({'GetStatisticsCategoryList','GetCategoryNumAchievements','GetAchievementInfo','GetStatistic'}) do
         if type(_G[name])~='function' then snapshot.error='Missing API: '..name; return snapshot end

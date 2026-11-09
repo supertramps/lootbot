@@ -187,7 +187,8 @@ test('Forever statistics capture uses full character names and matches the guild
     LootBotStatisticsProbe={Capture=function()captures=captures+1;return {entries={{id=1044,numericValue=12}}}end}
     LootBotDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
     LootBotStatisticsDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
-    LootBotStatisticsDriver.scripts.OnUpdate(nil,1)
+    SlashCmdList.LOOTBOT('relay on')
+    SlashCmdList.LOOTBOT('news sync')
     assert(captures==1)
     local db=LootBotDB.guildStatistics['TestRealm:TestGuild']
     assert(db.checkpoints['Private Property-TestRealm'].values[1044]==12)
@@ -372,51 +373,76 @@ test('guild weekly statistics: peers, cache, deltas, headline, resets, chunking 
   v.run(fs.readFileSync(path.join(__dirname,'guild-statistics.lua'),'utf8')); v.close();
 });
 
-test('statistics driver shares API data without optical traffic; round minimap marks unread weeks', () => {
+test('manual news sync, preview and publish preserve the printed baseline', () => {
   const v=vm(); v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   for(const file of ['GuildStatistics','NewspaperPublication','NewspaperEdition','StatisticsSharing','LootBot','NewsletterPreview'])
     v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
   v.run(`
     local clock=GetServerTime()
     GetServerTime=function() return clock end
-    local captures,sends=0,0
-    LootBotStatisticsProbe={Capture=function() captures=captures+1; return {entries={{id=60,numericValue=captures}}} end}
-    C_ChatInfo.SendAddonMessage=function(prefix,message) assert(prefix=='LootBotNews1' or prefix=='LootBotPaper1'); sends=sends+1 end
+    local captures,sends,request=0,0,nil
+    LootBotStatisticsProbe={Capture=function(save) assert(save==false); captures=captures+1; return {entries={{id=60,numericValue=100}}} end}
+    C_ChatInfo.SendAddonMessage=function(prefix,message,channel)
+        if prefix=='LootBotNews2' then assert(channel=='GUILD'); request=message:match('^S;(%d+)$') end
+        sends=sends+1
+    end
     LootBotDriver.scripts.OnEvent(LootBotDriver,'PLAYER_LOGIN')
-    LootBotStatisticsDriver.scripts.OnEvent(LootBotStatisticsDriver,'PLAYER_LOGIN')
+    local driver=LootBotStatisticsDriver
+    driver.scripts.OnEvent(driver,'PLAYER_LOGIN')
     SlashCmdList.LOOTBOT('relay on')
-    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
-    assert(captures==1 and sends>0)
-    for i=1,10 do LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1) end
-    assert(captures==1 and not LootBotMarker.shown and #LootBotMarker.textures==0)
-    clock=clock+1800
-    MockTime=MockTime+1800
-    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
-    assert(captures==2)
-    LootBotNewsletterPreview.Show()
-    assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterWelcome.png',1,true))
-    for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do assert(label.shown==false) end
+    local function tick(seconds)
+        clock=clock+seconds;MockTime=MockTime+seconds
+        driver.scripts.OnUpdate(driver,1)
+    end
+    tick(1)
+    assert(captures==0 and not LootBotMarker.shown and #LootBotMarker.textures==0)
+    local function collect(value)
+        SlashCmdList.LOOTBOT('news sync');assert(request==tostring(clock))
+        local week=LootBotGuildStatistics.Week(clock)
+        local function reply(token,name)
+            local part=table.concat({'D',token,name,week,clock,clock,1,1,'60='..value..'='..value},';')
+            driver.scripts.OnEvent(driver,'CHAT_MSG_ADDON','LootBotNews2',part,'WHISPER','Friend-TestRealm')
+        end
+        reply(request,'Stranger-TestRealm')
+        reply(request,'Friend-TestRealm')
+        SlashCmdList.LOOTBOT('news publish') -- cannot publish during collection
+        tick(61)
+    end
+    local db=LootBotDB.guildStatistics['TestRealm:TestGuild']
+    collect(100)
+    assert(db.checkpoints['Friend-TestRealm'].values[60]==100 and not db.checkpoints['Stranger-TestRealm'])
+    assert(not next(db.publication.issues))
+    local before=sends
+    SlashCmdList.LOOTBOT('news preview')
+    assert(sends==before and not next(db.publication.issues) and not LootBotDB.newspaperRead)
+    SlashCmdList.LOOTBOT('news publish')
+    local published=LootBotGuildStatistics.CurrentEdition()
+    assert(published.manual and not next(published.readings) and db.manualPrintedReadings['Friend-TestRealm'][60]==100)
     local icon=LootBotNewsletterMinimapButton
-    assert(icon.icon.path:find('PeonToast.tga',1,true) and icon.icon.x==0 and icon.icon.y==0)
-    clock=clock+604800
-    MockTime=MockTime+604800
-    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
-    for i=1,100 do clock=clock+1;MockTime=MockTime+1;LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1) end
-    LootBotNewsletterPreview.UpdateBadge()
-    assert(icon.labels[1].shown)
+    LootBotNewsletterPreview.UpdateBadge();assert(icon.labels[1].shown)
+    -- Reinitialise the driver against the same saved variables.
+    IsInGuild=function()return false end
+    driver.scripts.OnEvent(driver,'PLAYER_GUILD_UPDATE')
+    IsInGuild=function()return true end
+    driver.scripts.OnEvent(driver,'PLAYER_GUILD_UPDATE')
+    collect(108);collect(118)
+    assert(db.manualPrintedReadings['Friend-TestRealm'][60]==100)
+    before=sends
+    SlashCmdList.LOOTBOT('news preview')
+    local draft=LootBotNewsletterPreview.previewEdition
+    assert(draft.pages[1].fields.headline:find('18',1,true) and sends==before)
+    assert(icon.labels[1].shown and not LootBotDB.newspaperRead)
+    assert(LootBotGuildStatistics.CurrentEdition().id==published.id)
+    SlashCmdList.LOOTBOT('news publish')
+    local nextPaper=LootBotGuildStatistics.CurrentEdition()
+    assert(nextPaper.id>published.id and nextPaper.pages[1].fields.headline==draft.pages[1].fields.headline)
+    assert(db.manualPrintedReadings['Friend-TestRealm'][60]==118)
     LootBotNewsletterPreview.Show()
-    assert(not icon.labels[1].shown)
-    LootBotNewsletterPreview.UpdateBadge()
-    assert(not icon.labels[1].shown)
-    assert(LootBotNewsletterViewport.scrollChild.textures[1].path:find('NewsletterFront',1,true))
-    local visible=0
-    for _,label in ipairs(LootBotNewsletterViewport.scrollChild.labels) do if label.shown then visible=visible+1 end end
-    assert(visible>0)
+    LootBotNewsletterPreview.UpdateBadge();assert(not icon.labels[1].shown)
     SlashCmdList.LOOTBOT('stats off')
-    local before=captures
-    clock=clock+1800
-    LootBotStatisticsDriver.scripts.OnUpdate(LootBotStatisticsDriver,1)
-    assert(captures==before and LootBotDB.shareStatistics==false)
+    local beforeCaptures=captures
+    tick(1800)
+    assert(captures==beforeCaptures and LootBotDB.shareStatistics==false)
   `); v.close();
 });
 
@@ -432,7 +458,7 @@ test('raw purse, levels and confirmed personal repair payments collect and sync 
   v.run(fs.readFileSync(path.join(__dirname,'newsletter-metrics.lua'),'utf8'));v.close();
 });
 
-test('one frozen weekly issue: offline peer delivery, loss recovery, late activity, restart and integrity', () => {
+test('published issues reach peers unchanged, recover lost chunks and reject invalid payloads', () => {
   const v=vm();v.run(fs.readFileSync(path.join(__dirname,'wow-mock.lua'),'utf8'));
   for(const file of ['GuildStatistics','NewspaperPublication','NewspaperEdition'])v.run(fs.readFileSync(path.join(__dirname,'../addon/LootBot/'+file+'.lua'),'utf8'));
   v.run(fs.readFileSync(path.join(__dirname,'newspaper-publication.lua'),'utf8'));v.close();

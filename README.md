@@ -69,11 +69,12 @@ appear when there is something to report: pocket gold, confirmed personal
 repair bills, world-PvP honorable kills, or the race to level 60. See
 [how the newspaper works](docs/NEWSPAPER-PAGES.md) for sources and coverage.
 
-Update everyone to **0.4.1**. Your configured relay character automatically
-prints one shared Monday edition after logging in and syncing. Guildmates pass
-around that exact copy; late reports go into a later issue. The newspaper does
-not need the .exe, but printing needs the publisher character online and receipt
-needs an online copy-holder. `/lootbot newspaper status` shows who publishes.
+Update everyone to **0.4.22** for manual editions. On the publisher character,
+run `/lootbot news sync` to collect readings from online guildmates. Wait for
+the receipt, then use `/lootbot news preview` to review the draft. Use
+`/lootbot news publish` to send the finished issue when ready. Guildmates get an
+unread badge once they receive the issue. An online copy-holder can share it
+with members who log in later. `/lootbot newspaper status` shows who publishes.
 
 ## Catch-up and reliability
 
