@@ -169,7 +169,7 @@ function N.Build(edition,records,db,week,now)
     -- Requested recurring spotlight. These are reported lifetime totals, not invented weekly deltas.
     local needs,kills=rows(records,1044,true),rows(records,1487,true)
     local spotlight={}
-    if needs[1] then spotlight[#spotlight+1]={title='DEN BEHÖVDE JAG LA',value=string.format('%.0f need-rolls',needs[1].value),
+    if needs[1] then spotlight[#spotlight+1]={title='DEN BEHÖVER LA JAG',value=string.format('%.0f need-rolls',needs[1].value),
         body=board(needs)..'\n\n'..needs[1].name..' har rollat need flest gånger. Den behövdes la.'} end
     if kills[1] then spotlight[#spotlight+1]={title='SISTA SMÄLLEN',value=string.format('%.0f killing blows',kills[1].value),
         body=board(kills)..'\n\n'..kills[1].name..' delade ut flest sista smällar. Nån måste la avsluta jobbet.'} end
@@ -200,7 +200,7 @@ function N.Build(edition,records,db,week,now)
     local activities={{347,'GÔTT I MAGEN','portioner mat'},{346,'EN TILL, ELLER?','drycker'},{349,'STAMKUND I LUFTEN','flygresor'},
         {98,'QUEST AVKLARADE','avklarade quest'},{94,'DET FÅR VA','övergivna quest'},{112,'TOG SIG VATTEN ÖVER HUVUDET','drunkningar'},
         {1518,'DET NAPPADE','fångade fiskar'},{353,'HEM LJUVA HEM','hemresor med hearthstone'},{114,'GENVÄGEN NER','dödsfall efter fall'},
-        {1044,'DEN BEHÖVDE JAG','need-rolls'},{1042,'EN KRAM PÅ DET','kramar'},{1066,'NÅN HADE ROLIGT','skratt'}}
+        {1044,'DEN BEHÖVER LA JAG','need-rolls'},{1042,'EN KRAM PÅ DET','kramar'},{1066,'NÅN HADE ROLIGT','skratt'}}
     local cards={}
     for _,metric in ipairs(activities) do
         local list=rows(records,metric[1])
