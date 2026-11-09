@@ -107,8 +107,8 @@ assert(#LootBotLevelToastFrame.embers==28)
 LootBotDingDriver.scripts.OnEvent(nil,'PLAYER_LOGIN')
 T.Command('popup off'); T.PreviewMount()
 assert(math.abs(LootBotLevelToastFrame.x-600)<.01)
-assert(LootBotLevelToastFrame.iconBorder.path:find('PingPortraitRing.tga',1,true))
-assert(LootBotLevelToastFrame.iconMask.path=='Interface\\CharacterFrame\\TempPortraitAlphaMask')
+assert(LootBotLevelToastFrame.portrait.path:find('PeonToast.tga',1,true))
+assert(LootBotLevelToastFrame.iconMask.path:find('PingPortraitMask.tga',1,true))
 
 -- The stamp scales around a fixed anchor and settles without anchor drift.
 config.animation=true
